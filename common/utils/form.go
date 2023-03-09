@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/mylog"
 	"strings"
