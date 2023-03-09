@@ -1,0 +1,58 @@
+package redis
+
+import (
+	"data-center-task/global"
+	"data-center-task/internal/pkg/mylog"
+	"fmt"
+	"github.com/garyburd/redigo/redis"
+	"time"
+)
+
+var clientPool *redis.Pool
+
+type Config struct {
+	Host        string
+	Port        int
+	Password    string
+	MaxIdle     int //最大空闲连接数
+	MaxActive   int //最大连接数
+	IdleTimeout int //空闲连接超时时间 单位：纳秒
+	Database    int // 选择db
+}
+
+func InitRedis(redisConf Config) {
+	// 建立连接池
+	clientPool = &redis.Pool{
+		MaxIdle:     redisConf.MaxIdle,                                       //最大空闲连接数
+		MaxActive:   redisConf.MaxActive,                                     //最大连接数
+		IdleTimeout: time.Duration(redisConf.IdleTimeout) * time.Millisecond, //空闲连接超时时间
+		Wait:        true,
+		Dial: func() (redis.Conn, error) {
+			con, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", redisConf.Host, redisConf.Port),
+				redis.DialPassword(redisConf.Password),
+				redis.DialDatabase(redisConf.Database),
+				redis.DialConnectTimeout(time.Duration(1000)*time.Millisecond),
+				redis.DialReadTimeout(time.Duration(1000)*time.Millisecond),
+				redis.DialWriteTimeout(time.Duration(1000)*time.Millisecond))
+			if err != nil {
+				mylog.Error(nil, global.LogRedis, "[redis init] "+err.Error())
+				return nil, err
+			}
+			return con, nil
+		},
+	}
+}
+
+// GetConn
+// @Description: 从连接池中获取一个连接，要记得close
+// @return redis.Conn
+func GetConn() redis.Conn {
+	return clientPool.Get()
+}
+
+func ScanStruct(v []interface{}, obj interface{}) error {
+	return redis.ScanStruct(v, obj)
+}
+func ScanSlice(v []interface{}, obj interface{}, fieldNames ...string) error {
+	return redis.ScanSlice(v, obj, fieldNames...)
+}
