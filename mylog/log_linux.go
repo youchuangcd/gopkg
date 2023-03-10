@@ -8,6 +8,7 @@ kill -s USR1|USR2 程序的进程号
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/youchuangcd/gopkg"
 	"os"
 	"syscall"
 )
