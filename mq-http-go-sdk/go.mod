@@ -1,4 +1,4 @@
-module github.com/youchuangcd/gopkg/mq_http_go_sdk
+module mq_http_go_sdk
 
 go 1.20
 
