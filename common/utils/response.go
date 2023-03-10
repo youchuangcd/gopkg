@@ -113,3 +113,23 @@ func IsNil(i interface{}) bool {
 	}
 	return ret
 }
+
+func RetJson(ctx *gin.Context, e gopkg.Error, data interface{}, args ...interface{}) {
+	responseData := gin.H{
+		"code":         e.GetCode(),
+		"success":      true,
+		"message":      e.GetMsg(),
+		"service_time": time.Now().Unix(),
+		"serial_no":    "",
+		"data":         data,
+	}
+	statusCode := http.StatusOK
+	if len(args) > 0 {
+		statusCode = args[0].(int)
+	}
+	ctx.JSON(statusCode, responseData)
+	// 走最后的中间件来发送结果，这样可以做到中间件改写响应结果
+	ctx.Set(gopkg.ContextResponseDataKey, responseData)
+
+	return
+}
