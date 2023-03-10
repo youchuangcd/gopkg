@@ -3,7 +3,7 @@ package aliyunrocketmq
 import (
 	"github.com/panjf2000/ants/v2"
 	"github.com/youchuangcd/gopkg/common/utils"
-	mqhttpsdk "github.com/youchuangcd/gopkg/mq_http_go_sdk"
+	mqhttpsdk "github.com/youchuangcd/gopkg/mqhttpgosdk"
 	"sync"
 	"time"
 )

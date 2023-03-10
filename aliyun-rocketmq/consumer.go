@@ -10,7 +10,7 @@ import (
 	"github.com/gogap/errors"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
-	mqhttpsdk "github.com/youchuangcd/gopkg/mq_http_go_sdk"
+	mqhttpsdk "github.com/youchuangcd/gopkg/mqhttpgosdk"
 	"github.com/youchuangcd/gopkg/mylog"
 	"strings"
 	"sync"

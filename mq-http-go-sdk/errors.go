@@ -1,4 +1,4 @@
-package mq_http_go_sdk
+package mqhttpgosdk
 
 import (
 	"github.com/gogap/errors"
