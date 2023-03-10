@@ -1,4 +1,4 @@
-module publish-gitlab.tanjingpaas.com/golang/gopkg/mq-http-go-sdk
+module github.com/youchuangcd/gopkg/mq-http-go-sdk
 
 go 1.16
 
