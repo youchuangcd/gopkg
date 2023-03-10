@@ -29,9 +29,9 @@ type Config struct {
 //
 //	@Description:
 //	@param conf
-//	@return RocketMQ
-func New(conf Config) RocketMQ {
-	mq := RocketMQ{
+//	@return *RocketMQ
+func New(conf Config) *RocketMQ {
+	mq := &RocketMQ{
 		accessKeyId:     conf.AccessKeyId,
 		accessKeySecret: conf.AccessKeySecret,
 		endPoint:        conf.EndPoint,

@@ -1,6 +1,6 @@
 module mq_http_go_sdk
 
-go 1.16
+go 1.20
 
 require (
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
