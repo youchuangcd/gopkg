@@ -2,7 +2,7 @@ module github.com/youchuangcd/gopkg
 
 go 1.20
 
-replace github.com/aliyunmq/mq-http-go-sdk => ./mq-http-go-sdk
+replace github.com/aliyunmq/mq-http-go-sdk v1.0.3 => ./mq-http-go-sdk
 
 require (
 	github.com/Shopify/sarama v1.38.1
