@@ -114,7 +114,7 @@ func IsNil(i interface{}) bool {
 	return ret
 }
 
-func RetJson(ctx *gin.Context, e gopkg.Error, data interface{}, args ...interface{}) {
+func RetJson(ctx *gin.Context, e *gopkg.Error, data interface{}, args ...interface{}) {
 	responseData := gin.H{
 		"code":         e.GetCode(),
 		"success":      true,
