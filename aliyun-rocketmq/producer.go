@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
-	mqhttpsdk "github.com/youchuangcd/gopkg/mqhttpgosdk"
+	mqhttpsdk "github.com/youchuangcd/gopkg/mq-http-go-sdk"
 	"github.com/youchuangcd/gopkg/mylog"
 	"time"
 )

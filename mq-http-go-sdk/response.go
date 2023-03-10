@@ -1,4 +1,4 @@
-package mqhttpgosdk
+package mq_http_go_sdk
 
 type MessageResponder interface {
 	Responses() []*MessageResponse
