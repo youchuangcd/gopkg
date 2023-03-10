@@ -2,11 +2,8 @@ module github.com/youchuangcd/gopkg
 
 go 1.20
 
-replace github.com/aliyunmq/mq-http-go-sdk v1.0.3 => ./mq-http-go-sdk
-
 require (
 	github.com/Shopify/sarama v1.38.1
-	github.com/aliyunmq/mq-http-go-sdk v1.0.3
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/locales v0.14.1
@@ -18,6 +15,13 @@ require (
 	github.com/panjf2000/ants/v2 v2.7.1
 	github.com/sirupsen/logrus v1.9.0
 	gorm.io/gorm v1.24.6
+)
+
+require (
+	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
+	github.com/gogap/errors v0.0.0-20210818113853-edfbba0ddea9
+	github.com/gogap/stack v0.0.0-20150131034635-fef68dddd4f8 // indirect
+	github.com/valyala/fasthttp v1.40.0
 )
 
 require (

@@ -3,7 +3,6 @@ package aliyunrocketmq
 import (
 	"context"
 	"fmt"
-	mqhttpsdk "github.com/aliyunmq/mq-http-go-sdk"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
@@ -11,6 +10,7 @@ import (
 	"github.com/gogap/errors"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
+	mqhttpsdk "github.com/youchuangcd/gopkg/mq_http_go_sdk"
 	"github.com/youchuangcd/gopkg/mylog"
 	"strings"
 	"sync"

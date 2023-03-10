@@ -2,9 +2,9 @@ package aliyunrocketmq
 
 import (
 	"context"
-	mqhttpsdk "github.com/aliyunmq/mq-http-go-sdk"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
+	mqhttpsdk "github.com/youchuangcd/gopkg/mq_http_go_sdk"
 	"github.com/youchuangcd/gopkg/mylog"
 	"time"
 )
