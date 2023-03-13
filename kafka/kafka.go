@@ -138,7 +138,7 @@ func (h consumerGroupHandler) Cleanup(s sarama.ConsumerGroupSession) error {
 func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error { // consume
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
 	//ctx := sess.Context()
-	ctx := context.WithValue(context.Background(), "category", logConf.Category)
+	ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
 	for msg := range claim.Messages() {
 		select {
 		case <-sess.Context().Done():
