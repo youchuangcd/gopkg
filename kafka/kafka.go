@@ -139,48 +139,48 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
 	//ctx := sess.Context()
 	ctx := context.WithValue(context.Background(), "category", logConf.Category)
-	for {
+	for msg := range claim.Messages() {
 		select {
-		case msg := <-claim.Messages():
-			newCtx := ctx
-			// 从消息头部中取traceId 和msgId 写到上下文中
-			for _, v := range msg.Headers {
-				headerKey := string(v.Key)
-				if _, ok := ctxWithMap[headerKey]; ok {
-					newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
-				}
-			}
-			highWaterMarkOffset := claim.HighWaterMarkOffset()
-			tmpMsg := msg
-			_err := h.goPool.Submit(func() {
-				// 业务逻辑处理
-				err := h.callback(newCtx, tmpMsg)
-				valStr := h.cutStrFromLogConfig(string(tmpMsg.Value))
-				logMap := map[string]interface{}{
-					"topic":        tmpMsg.Topic,
-					"partition":    tmpMsg.Partition,
-					"offset":       tmpMsg.Offset,
-					"maxOffsetSub": highWaterMarkOffset - tmpMsg.Offset,
-					"key":          string(tmpMsg.Key),
-					"value":        valStr,
-				}
-				if err != nil {
-					logMap["err"] = err
-					logConf.Logger.LogError(newCtx, logConf.Category, logMap, "[Consumer] Message Failed")
-					// 扔到重试队列或死信队列
-				} else {
-					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[Consumer] Message Success")
-				}
-			})
-			if _err != nil {
-				logConf.Logger.LogError(newCtx, logConf.Category, map[string]interface{}{
-					"err": _err,
-				}, "kafka消费者提交消息到协程池失败")
-			}
-			sess.MarkMessage(msg, "") // 必须设置这个，不然你的偏移量无法提交。
 		case <-sess.Context().Done():
 			break
+		default:
 		}
+		newCtx := ctx
+		// 从消息头部中取traceId 和msgId 写到上下文中
+		for _, v := range msg.Headers {
+			headerKey := string(v.Key)
+			if _, ok := ctxWithMap[headerKey]; ok {
+				newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
+			}
+		}
+		highWaterMarkOffset := claim.HighWaterMarkOffset()
+		tmpMsg := msg
+		_err := h.goPool.Submit(func() {
+			// 业务逻辑处理
+			err := h.callback(newCtx, tmpMsg)
+			valStr := h.cutStrFromLogConfig(string(tmpMsg.Value))
+			logMap := map[string]interface{}{
+				"topic":        tmpMsg.Topic,
+				"partition":    tmpMsg.Partition,
+				"offset":       tmpMsg.Offset,
+				"maxOffsetSub": highWaterMarkOffset - tmpMsg.Offset,
+				"key":          string(tmpMsg.Key),
+				"value":        valStr,
+			}
+			if err != nil {
+				logMap["err"] = err
+				logConf.Logger.LogError(newCtx, logConf.Category, logMap, "[Consumer] Message Failed")
+				// 扔到重试队列或死信队列
+			} else {
+				logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[Consumer] Message Success")
+			}
+		})
+		if _err != nil {
+			logConf.Logger.LogError(newCtx, logConf.Category, map[string]interface{}{
+				"err": _err,
+			}, "kafka消费者提交消息到协程池失败")
+		}
+		sess.MarkMessage(msg, "") // 必须设置这个，不然你的偏移量无法提交。
 	}
 	return nil
 }
