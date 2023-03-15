@@ -22,7 +22,6 @@ type TextMessageContent struct {
 // 钉钉群：数据关联（机器人：数据关联汇总）
 var (
 	RobotDataRelationKeyword = "关联数据汇总"
-	RobotDataRelationUrl     = gopkg.RobotDataRelationUrl
 )
 
 type RobotRep struct {
