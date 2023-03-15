@@ -65,8 +65,9 @@ func RemoveRepeatedStr(s []string) []string {
 // @return uid
 // @return err
 var (
-	uuidCount        = atomic.Uint64{} // 唯一id的全局计数器，解决单机唯一id冲突的问题
-	resetMax  uint64 = math.MaxUint64 - 1000000
+	uuidCount            = atomic.Uint64{} // 唯一id的全局计数器，解决单机唯一id冲突的问题
+	resetMax      uint64 = math.MaxUint64 - 1000000
+	initRandCount        = strconv.FormatInt(time.Now().UnixNano(), 10) // 降低多节点同时获取id可能出现重复的概率
 )
 
 func UUID() (uid MyUUID, err error) {
@@ -77,7 +78,7 @@ func UUID() (uid MyUUID, err error) {
 	}
 	// 计数器值 + 19位时间戳 纳秒级
 	uid = MyUUID{
-		Value: MD5V([]byte(strconv.FormatUint(uuidCount.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
+		Value: MD5V([]byte(initRandCount + strconv.FormatUint(uuidCount.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
 	}
 	return uid, nil
 }
