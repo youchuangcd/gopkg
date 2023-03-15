@@ -70,16 +70,14 @@ var (
 )
 
 func UUID() (uid MyUUID, err error) {
-	// 防止超出最大值; 这里读取可以不用原子读
-	oldCount := uuidCount.Load()
-	if oldCount > resetMax {
+	// 防止超出最大值
+	if uuidCount.Load() > resetMax {
 		// 跟旧值一致才修改
-		uuidCount.CompareAndSwap(oldCount, 0)
+		uuidCount.CompareAndSwap(uuidCount.Load(), 0)
 	}
 	// 计数器值 + 19位时间戳 纳秒级
-	val := uuidCount.Add(1) + uint64(time.Now().UnixNano())
 	uid = MyUUID{
-		Value: MD5V([]byte(strconv.FormatUint(val, 10))),
+		Value: MD5V([]byte(strconv.FormatUint(uuidCount.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
 	}
 	return uid, nil
 }
