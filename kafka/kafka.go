@@ -310,24 +310,24 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 //	@return err
 func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []string) (err error) {
 	msgs := make([]*sarama.ProducerMessage, 0, len(contents))
-	headers := make([]sarama.RecordHeader, 0, 2)
-	if traceId, ok := ctx.Value(ctxTraceIdKey).(string); ok {
-		headers = append(headers, sarama.RecordHeader{
-			Key:   []byte(ctxTraceIdKey),
-			Value: []byte(traceId),
-		})
-	}
+	traceId, _ := ctx.Value(ctxTraceIdKey).(string)
 	for _, content := range contents {
-		msgHeaders := headers
+		headers := make([]sarama.RecordHeader, 0, 2)
+		if traceId != "" {
+			headers = append(headers, sarama.RecordHeader{
+				Key:   []byte(ctxTraceIdKey),
+				Value: []byte(traceId),
+			})
+		}
 		// 生成每条消息的id
-		msgHeaders = append(msgHeaders, sarama.RecordHeader{
+		headers = append(headers, sarama.RecordHeader{
 			Key:   []byte(ctxMsgIdKey),
 			Value: []byte(genUniqIdFunc()),
 		})
 		msgs = append(msgs, &sarama.ProducerMessage{
 			Topic:   topic,
 			Value:   sarama.StringEncoder(content),
-			Headers: msgHeaders,
+			Headers: headers,
 		})
 	}
 
