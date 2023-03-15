@@ -145,27 +145,26 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 			break
 		default:
 		}
+		tmpMsg := msg
 		newCtx := ctx
 		// 从消息头部中取traceId 和msgId 写到上下文中
-		for _, v := range msg.Headers {
+		for _, v := range tmpMsg.Headers {
 			headerKey := string(v.Key)
 			if _, ok := ctxWithMap[headerKey]; ok {
 				newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
 			}
 		}
 		highWaterMarkOffset := claim.HighWaterMarkOffset()
-		tmpMsg := msg
 		_err := h.goPool.Submit(func() {
 			// 业务逻辑处理
 			err := h.callback(newCtx, tmpMsg)
-			valStr := h.cutStrFromLogConfig(string(tmpMsg.Value))
 			logMap := map[string]interface{}{
 				"topic":        tmpMsg.Topic,
 				"partition":    tmpMsg.Partition,
 				"offset":       tmpMsg.Offset,
 				"maxOffsetSub": highWaterMarkOffset - tmpMsg.Offset,
 				"key":          string(tmpMsg.Key),
-				"value":        valStr,
+				"value":        h.cutStrFromLogConfig(string(tmpMsg.Value)),
 			}
 			if err != nil {
 				logMap["err"] = err
