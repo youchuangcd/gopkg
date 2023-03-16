@@ -74,7 +74,7 @@ var (
 	DateTimeFormat                  = "2006-01-02 15:04:05"
 	DateTimeNoSecondFormat          = "2006-01-02 15:04"
 	DateTimeSlashFormat             = "2006/01/02 15:04"
-	DateMsTimeFormat                = "2006-01-02 15:04:05.000"
+	DateMsTimeFormat                = "2006-01-02 15:04:05.999"
 	DateNoDelimitersFormat          = "20060102"
 	DateTimeNoDelimitersFormat      = "20060102150405"
 	TimeFormat                      = "15:04:05"

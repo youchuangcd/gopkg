@@ -334,7 +334,7 @@ func (t LocalDateMsTime) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON
-// @Description: 把时间字符串转化为LocalTime对象
+// @Description: 把时间字符串(2006-01-02 15:04:05.999)转化为LocalDateMsTime对象
 // @receiver t
 // @param data
 // @return error
@@ -343,11 +343,20 @@ func (t *LocalDateMsTime) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		return nil
 	}
-	msec, err := strconv.ParseInt(string(data), 10, 64)
+	//前端接收的时间字符串
+	str := string(data)
+	//去除接收的str收尾多余的"
+	timeStr := strings.Trim(str, "\"")
+	t1, err := time.Parse(gopkg.DateMsTimeFormat, timeStr)
 	if err != nil {
 		return err
 	}
-	t.Time = time.Unix(msec/1e3, (msec%1e3)*1e6)
+	*t = LocalDateMsTime{Time: t1}
+	//msec, err := strconv.ParseInt(string(data), 10, 64)
+	//if err != nil {
+	//	return err
+	//}
+	//t.Time = time.Unix(msec/1e3, (msec%1e3)*1e6)
 	//t.Time = time.UnixMilli(i) // go 1.17才支持
 	return nil
 
