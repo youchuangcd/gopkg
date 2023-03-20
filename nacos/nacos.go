@@ -1,6 +1,7 @@
 package nacos
 
 import (
+	"errors"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
@@ -9,15 +10,22 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/logger"
 	"github.com/nacos-group/nacos-sdk-go/model"
 	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
 	"github.com/youchuangcd/gopkg/mylog"
+	"gopkg.in/yaml.v3"
 	"os"
+	"reflect"
 )
 
 var (
 	// LogCategory 日志分类名称
 	LogCategory = "nacos"
 )
+
+type ConfigInterface interface {
+	CloneConfig() ConfigInterface
+}
 
 type Nacos struct {
 	// 监听配置回调通知函数 ，接收content内容 返回 int
@@ -27,6 +35,51 @@ type Nacos struct {
 	config       Config
 	client       config_client.IConfigClient
 	namingClient naming_client.INamingClient
+}
+
+// DefaultCallback
+//
+//	@Description: 默认回调方法
+//	@param confUnmarshalMapValue
+//	@param group
+//	@param dataId
+//	@param content
+//	@return err
+func (p *Nacos) DefaultCallback(confUnmarshalMapValue map[string]UnmarshalMapValue, group, dataId, content string) (err error) {
+	if content == "" {
+		return
+	}
+	if v, ok := confUnmarshalMapValue[dataId]; ok && v.ConfV2 != nil {
+		// 克隆一份配置结构体，看看能不能正常反序列化，如果正常，则把配置设置到真实的配置结构体上
+		nv := v.ConfV2.CloneConfig()
+		if err = yaml.Unmarshal([]byte(content), nv); err == nil {
+			// 完整的反序列化配置后，才赋值。避免运行中改错配置，导致其他异常
+			value := reflect.ValueOf(v.ConfV2).Elem() // 得到指针
+			if value.CanSet() {
+				// 获取之前的配置
+				beforeConf := v.ConfV2.CloneConfig()
+				value.Set(reflect.ValueOf(nv).Elem()) // 给指针赋值
+				// 如果有变动回调
+				if v.ChangeCallbackV2 != nil {
+					v.ChangeCallbackV2(beforeConf)
+				} else if v.ChangeCallback != nil {
+					v.ChangeCallback()
+				}
+			}
+		}
+	} else {
+		err = errors.New("未找到dataId映射配置，请配置config.NacosConfUnmarshalMap ConfV2")
+	}
+	if err != nil {
+		mylog.WithError(nil, gopkg.LogNacos, map[string]interface{}{
+			"group":   group,
+			"dataId":  dataId,
+			"content": content,
+			"err":     err,
+		}, "Nacos反序列配置失败")
+		panic("Nacos反序列配置失败, 请看日志")
+	}
+	return
 }
 
 type Config struct {
@@ -43,6 +96,9 @@ type Config struct {
 type UnmarshalMapValue struct {
 	Conf           interface{}
 	ChangeCallback func()
+	// 新方式，如果使用此方式，可以获取到变动前的配置
+	ConfV2           ConfigInterface
+	ChangeCallbackV2 func(beforeConf interface{})
 }
 
 func InitNacos() {
@@ -106,7 +162,6 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 }
 
 // 读取配置内容
-// (n Nacos)
 func (p *Nacos) GetConfig(group, dataId string) (content string, err error) {
 	content, err = p.client.GetConfig(vo.ConfigParam{
 		DataId: dataId,
@@ -115,6 +170,9 @@ func (p *Nacos) GetConfig(group, dataId string) (content string, err error) {
 	if err != nil {
 		mylog.Error(nil, LogCategory, fmt.Sprintf("send msg failed, err:%s", err.Error()))
 		panic("无法连接Nacos，需要重新发布")
+	}
+	if p.Callback == nil {
+		p.Callback = p.DefaultCallback
 	}
 	_ = p.Callback(p.config.UnmarshalMap, group, dataId, content)
 	// 增加监听配置是否变化
