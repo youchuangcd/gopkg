@@ -74,6 +74,7 @@ type LogConfig struct {
 	ReplaceStr            string
 	PanicHandler          func(r interface{})
 	GoroutinePanicHandler func(r interface{})
+	Producer              bool // 推送日志开启
 }
 
 type logger interface {
@@ -292,11 +293,14 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 		}, "send msg failed")
 		return
 	}
-	//logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{
-	//	"partition": partition,
-	//	"offset":  offset,
-	//	"content": content,
-	//}, "send msg success")
+	// 是否开启生产者日志
+	if logConf.Producer {
+		logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{
+			"partition": partition,
+			"offset":    offset,
+			"content":   content,
+		}, "send msg success")
+	}
 	return
 }
 
@@ -335,12 +339,19 @@ func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []s
 	err = k.syncProducer.SendMessages(msgs)
 	if err != nil {
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"err":   err,
-			"topic": topic,
+			"contents": contents,
+			"err":      err,
+			"topic":    topic,
 		}, "send msg failed")
 		return
 	}
-	//logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{}, "send msg success")
+	// 是否开启生产者日志
+	if logConf.Producer {
+		logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{
+			"contents": contents,
+			"topic":    topic,
+		}, "send msg success")
+	}
 	return
 }
 
