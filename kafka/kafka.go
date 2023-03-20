@@ -66,6 +66,14 @@ func SetRequestHeaderMsgIdKey(k string) {
 	ctxWithMap[ctxMsgIdKey] = struct{}{}
 }
 
+// SetLogProducer
+//
+//	@Description: 设置是否记录生产者日志
+//	@param v
+func SetLogProducer(v bool) {
+	logConf.Producer = v
+}
+
 // 公共的日志配置
 type LogConfig struct {
 	Category              string
