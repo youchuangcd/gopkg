@@ -285,11 +285,11 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 	partition, offset, err = k.syncProducer.SendMessage(msg)
 	//content = k.cutStrFromLogConfig(content)
 	if err != nil {
-		content = k.cutStrFromLogConfig(content)
+		//content = k.cutStrFromLogConfig(content)
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"err":     err,
-			"topic":   topic,
-			"content": content,
+			"err":   err,
+			"topic": topic,
+			"msg":   msg,
 		}, "send msg failed")
 		return
 	}
@@ -298,7 +298,7 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 		logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{
 			"partition": partition,
 			"offset":    offset,
-			"content":   content,
+			"msg":       msg,
 		}, "send msg success")
 	}
 	return
@@ -339,17 +339,17 @@ func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []s
 	err = k.syncProducer.SendMessages(msgs)
 	if err != nil {
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"contents": contents,
-			"err":      err,
-			"topic":    topic,
+			"msgs":  msgs,
+			"err":   err,
+			"topic": topic,
 		}, "send msg failed")
 		return
 	}
 	// 是否开启生产者日志
 	if logConf.Producer {
 		logConf.Logger.LogInfo(ctx, logConf.Category, map[string]interface{}{
-			"contents": contents,
-			"topic":    topic,
+			"msgs":  msgs,
+			"topic": topic,
 		}, "send msg success")
 	}
 	return
