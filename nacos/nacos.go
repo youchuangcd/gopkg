@@ -1,7 +1,6 @@
 package nacos
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/clients"
@@ -12,13 +11,11 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/model"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/youchuangcd/gopkg"
-	"github.com/youchuangcd/gopkg/common"
 	"github.com/youchuangcd/gopkg/common/utils"
 	"github.com/youchuangcd/gopkg/mylog"
 	"gopkg.in/yaml.v3"
 	"os"
 	"reflect"
-	"strings"
 )
 
 var (
@@ -52,48 +49,19 @@ func (p *Nacos) DefaultCallback(confUnmarshalMapValue map[string]UnmarshalMapVal
 	if content == "" {
 		return
 	}
-	if v, ok := confUnmarshalMapValue[dataId]; ok {
-		if v.ConfV2 != nil {
-			// 克隆一份配置结构体，看看能不能正常反序列化，如果正常，则把配置设置到真实的配置结构体上
-			nv := v.ConfV2.CloneConfig()
-			if err = yaml.Unmarshal([]byte(content), nv); err == nil {
-				// 完整的反序列化配置后，才赋值。避免运行中改错配置，导致其他异常
-				value := reflect.ValueOf(v.ConfV2).Elem() // 得到指针
-				if value.CanSet() {
-					// 获取之前的配置
-					beforeConf := v.ConfV2.CloneConfig()
-					value.Set(reflect.ValueOf(nv).Elem()) // 给指针赋值
-					// 如果有变动回调
-					if v.ChangeCallbackV2 != nil {
-						v.ChangeCallbackV2(beforeConf)
-					} else if v.ChangeCallback != nil {
-						v.ChangeCallback()
-					}
-				}
-			}
-		} else if v.Conf != nil { // 兼容老的代码
-			if strings.HasSuffix(dataId, "json") {
-				err = json.Unmarshal([]byte(content), v.Conf)
-				if err == nil {
-					// 如果有变动回调
-					if v.ChangeCallback != nil {
-						v.ChangeCallback()
-					}
-				}
-			} else {
-				// clone 指针值
-				nv := common.Clone(v.Conf)
-				err = yaml.Unmarshal([]byte(content), nv)
-				if err == nil {
-					// 完整的反序列化配置后，才赋值。避免运行中改错配置，导致其他异常
-					value := reflect.ValueOf(v.Conf).Elem() // 得到指针
-					if value.CanSet() {
-						value.Set(reflect.ValueOf(nv).Elem()) // 给指针赋值
-						// 如果有变动回调
-						if v.ChangeCallback != nil {
-							v.ChangeCallback()
-						}
-					}
+	if v, ok := confUnmarshalMapValue[dataId]; ok && v.Conf != nil {
+		// 克隆一份配置结构体，看看能不能正常反序列化，如果正常，则把配置设置到真实的配置结构体上
+		nv := v.Conf.CloneConfig()
+		if err = yaml.Unmarshal([]byte(content), nv); err == nil {
+			// 完整的反序列化配置后，才赋值。避免运行中改错配置，导致其他异常
+			value := reflect.ValueOf(v.Conf).Elem() // 得到指针
+			if value.CanSet() {
+				// 获取之前的配置
+				beforeConf := v.Conf.CloneConfig()
+				value.Set(reflect.ValueOf(nv).Elem()) // 给指针赋值
+				// 如果有变动回调
+				if v.ChangeCallback != nil {
+					v.ChangeCallback(beforeConf)
 				}
 			}
 		}
@@ -124,11 +92,9 @@ type Config struct {
 	UnmarshalMap map[string]UnmarshalMapValue
 }
 type UnmarshalMapValue struct {
-	Conf           interface{}
-	ChangeCallback func()
 	// 新方式，如果使用此方式，可以获取到变动前的配置
-	ConfV2           ConfigInterface
-	ChangeCallbackV2 func(beforeConf ConfigInterface)
+	Conf           ConfigInterface
+	ChangeCallback func(beforeConf ConfigInterface)
 }
 
 func InitNacos() {
