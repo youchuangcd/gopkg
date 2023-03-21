@@ -128,7 +128,7 @@ type UnmarshalMapValue struct {
 	ChangeCallback func()
 	// 新方式，如果使用此方式，可以获取到变动前的配置
 	ConfV2           ConfigInterface
-	ChangeCallbackV2 func(beforeConf interface{})
+	ChangeCallbackV2 func(beforeConf ConfigInterface)
 }
 
 func InitNacos() {
