@@ -14,13 +14,7 @@ var (
 	ErrorRedisInvalidScriptKey = NewError(800, "无效的redis Lua脚本key")
 	ErrorInternalServer        = NewError(999, "系统繁忙，请稍后再试!")
 
-	InvalidParam      = NewError(10005, "无效的参数")
-	ErrorInvalidToken = NewError(10001, "token无效或者授权已过期，请重新申请授权")
-	//Success                    *Error
-	//Failure                    *Error
-	//ErrorRedisInvalidScriptKey *Error
-	//InvalidParam               *Error
-	//ErrorInvalidToken          *Error
+	InvalidParam = NewError(10005, "无效的参数")
 )
 
 var (

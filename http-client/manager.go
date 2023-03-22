@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	defaultManager       *Manager
-	once                 sync.Once
-	clientDefaultTimeout = gopkg.HttpClientTimeout // 客户端默认超时
+	defaultManager *Manager
+	once           sync.Once
+	DefaultTimeout = gopkg.HttpClientTimeout // 客户端默认超时
 )
 
 type Manager struct {
@@ -42,7 +42,7 @@ func NewManager(credentials *auth.Credentials) *Manager {
 	c := client.DefaultClient
 	//credentials := newCredentials(key, secret)
 	c.Transport = newTransport(credentials, nil)
-	c.Timeout = clientDefaultTimeout
+	c.Timeout = DefaultTimeout
 	return &Manager{
 		Client:      &c,
 		Credentials: credentials,
