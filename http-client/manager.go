@@ -3,16 +3,19 @@ package httpclient
 import (
 	"bytes"
 	"context"
+	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/http-client/auth"
 	"github.com/youchuangcd/gopkg/http-client/client"
 	"io"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var (
-	defaultManager *Manager
-	once           sync.Once
+	defaultManager       *Manager
+	once                 sync.Once
+	clientDefaultTimeout = gopkg.HttpClientTimeout // 客户端默认超时
 )
 
 type Manager struct {
@@ -39,6 +42,17 @@ func NewManager(credentials *auth.Credentials) *Manager {
 	c := client.DefaultClient
 	//credentials := newCredentials(key, secret)
 	c.Transport = newTransport(credentials, nil)
+	c.Timeout = clientDefaultTimeout
+	return &Manager{
+		Client:      &c,
+		Credentials: credentials,
+	}
+}
+
+func NewManagerV2(credentials *auth.Credentials, timeout time.Duration, tr http.RoundTripper) *Manager {
+	c := client.DefaultClient
+	c.Transport = newTransport(credentials, tr)
+	c.Timeout = timeout
 	return &Manager{
 		Client:      &c,
 		Credentials: credentials,

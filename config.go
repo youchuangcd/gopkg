@@ -1,6 +1,9 @@
 package gopkg
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 /**
  * 公共包依赖外部的所有配置都在此处，按需修改
@@ -107,4 +110,9 @@ var (
 
 var (
 	RobotDataRelationUrl = "" // 机器人数据关联地址
+)
+
+// http client相关配置
+var (
+	HttpClientTimeout = 5 * time.Second // 默认超时时间
 )
