@@ -22,10 +22,13 @@ var (
 	// DebugMode 用来打印调试信息
 	DebugMode = true
 	// DeepDebugInfo 调试信息
-	DeepDebugInfo = true
+	DeepDebugInfo      = true
+	insReqStartTimeKey = reqStartTimeKey{}
+	insReqUrlKey       = reqUrlKey{}
 )
 
 type reqStartTimeKey struct{}
+type reqUrlKey struct{}
 
 // --------------------------------------------------------------------
 
@@ -233,10 +236,16 @@ func CallRet(ctx context.Context, ret interface{}, resp *http.Response) (err err
 	}()
 
 	if DebugMode {
-		var latencyTime time.Duration
-		if startTime, ok := ctx.Value(reqStartTimeKey{}).(time.Time); ok {
+		var (
+			latencyTime time.Duration
+			reqUrl      string
+		)
+		if startTime, ok := ctx.Value(insReqStartTimeKey).(time.Time); ok {
 			// 执行时间
 			latencyTime = time.Since(startTime)
+		}
+		if url, ok := ctx.Value(insReqUrlKey).(string); ok {
+			reqUrl = url
 		}
 		bs, dErr := httputil.DumpResponse(resp, DeepDebugInfo)
 		if dErr != nil {
@@ -246,6 +255,7 @@ func CallRet(ctx context.Context, ret interface{}, resp *http.Response) (err err
 		mylog.WithInfo(ctx, gopkg.LogHttp, map[string]interface{}{
 			"latency_time_str": latencyTime.String(),
 			"latency_time":     float64(latencyTime.Nanoseconds()) / 1e6,
+			"req_url":          reqUrl,
 		}, string(bs))
 	}
 	if resp.StatusCode/100 == 2 {
@@ -269,10 +279,16 @@ func CallRetResp(ctx context.Context, retBuf *bytes.Buffer, resp *http.Response)
 		resp.Body.Close()
 	}()
 	if DebugMode {
-		var latencyTime time.Duration
-		if startTime, ok := ctx.Value(reqStartTimeKey{}).(time.Time); ok {
+		var (
+			latencyTime time.Duration
+			reqUrl      string
+		)
+		if startTime, ok := ctx.Value(insReqStartTimeKey).(time.Time); ok {
 			// 执行时间
 			latencyTime = time.Since(startTime)
+		}
+		if url, ok := ctx.Value(insReqUrlKey).(string); ok {
+			reqUrl = url
 		}
 		bs, dErr := httputil.DumpResponse(resp, DeepDebugInfo)
 		if dErr != nil {
@@ -282,6 +298,7 @@ func CallRetResp(ctx context.Context, retBuf *bytes.Buffer, resp *http.Response)
 		mylog.WithInfo(ctx, gopkg.LogHttp, map[string]interface{}{
 			"latency_time_str": latencyTime.String(),
 			"latency_time":     float64(latencyTime.Nanoseconds()) / 1e6,
+			"req_url":          reqUrl,
 		}, string(bs))
 	}
 	if resp.StatusCode/100 == 2 {
@@ -302,7 +319,8 @@ func CallRetResp(ctx context.Context, retBuf *bytes.Buffer, resp *http.Response)
 func (r Client) CallWithJson(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header,
 	param interface{}) (err error) {
 	if DebugMode {
-		ctx = context.WithValue(ctx, reqStartTimeKey{}, time.Now())
+		ctx = context.WithValue(ctx, insReqStartTimeKey, time.Now())
+		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
 	}
 	resp, err := r.DoRequestWithJson(ctx, method, reqUrl, headers, param)
 	if err != nil {
@@ -315,7 +333,8 @@ func (r Client) CallWithJson(ctx context.Context, ret interface{}, method, reqUr
 func (r Client) CallWithJsonReturnResp(ctx context.Context, retBuf *bytes.Buffer, method, reqUrl string, headers http.Header,
 	param interface{}) (err error) {
 	if DebugMode {
-		ctx = context.WithValue(ctx, reqStartTimeKey{}, time.Now())
+		ctx = context.WithValue(ctx, insReqStartTimeKey, time.Now())
+		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
 	}
 	resp, err := r.DoRequestWithJson(ctx, method, reqUrl, headers, param)
 	if err != nil {
@@ -340,7 +359,8 @@ func (r Client) DoRequestWith64(ctx context.Context, method, reqUrl string, head
 func (r Client) CallWith64(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header, body io.Reader,
 	bodyLength int64) (err error) {
 	if DebugMode {
-		ctx = context.WithValue(ctx, reqStartTimeKey{}, time.Now())
+		ctx = context.WithValue(ctx, insReqStartTimeKey, time.Now())
+		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
 	}
 	resp, err := r.DoRequestWith64(ctx, method, reqUrl, headers, body, bodyLength)
 	if err != nil {
