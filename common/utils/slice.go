@@ -217,9 +217,17 @@ func IsSliceExist(s []int, f int) int {
 //
 //	@Description: 打乱切片
 //	@param slice
-func RandShuffle(slice []interface{}) {
+func RandShuffle(slice interface{}) {
+	rv := reflect.ValueOf(slice)
+	if rv.Type().Kind() != reflect.Slice {
+		return
+	}
+	length := rv.Len()
+	if length < 2 {
+		return
+	}
+
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	r.Shuffle(len(slice), func(i, j int) {
-		slice[i], slice[j] = slice[j], slice[i]
-	})
+	r.Shuffle(length, reflect.Swapper(slice))
+	return
 }
