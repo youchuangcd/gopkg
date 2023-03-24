@@ -2,8 +2,10 @@ package utils
 
 import (
 	"github.com/gogap/errors"
+	"math/rand"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // SliceRemoveZeroValue
@@ -209,4 +211,15 @@ func IsSliceExist(s []int, f int) int {
 		}
 	}
 	return 0
+}
+
+// RandShuffle
+//
+//	@Description: 打乱切片
+//	@param slice
+func RandShuffle(slice []interface{}) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(slice), func(i, j int) {
+		slice[i], slice[j] = slice[j], slice[i]
+	})
 }
