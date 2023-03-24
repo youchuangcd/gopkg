@@ -30,3 +30,12 @@ func BenchmarkStringSliceRemoveEmpty(b *testing.B) {
 	////fmt.Println(old)
 	//fmt.Println(len(old))
 }
+
+func TestRandShuffle(t *testing.T) {
+	var arr = []uint{1, 4, 5, 6, 7}
+	RandShuffle(arr)
+	t.Log(arr)
+	var arr2 = []int{1, 4, 5, 6, 7}
+	RandShuffle(arr2)
+	t.Log(arr2)
+}
