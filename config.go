@@ -48,6 +48,7 @@ var (
 	RequestHeaderSpanIdKey  = "X-Request-Span-Id"
 	LogTraceIdKey           = "traceId"
 	LogSpanIdKey            = "spanId"
+	LogParentSpanIdKey      = "parentSpanId"
 	LogUserIdKey            = "userId"
 	LogTaskIdKey            = "taskId"
 	LogMsgIdKey             = "msgId"

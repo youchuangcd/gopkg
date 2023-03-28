@@ -222,6 +222,9 @@ func loggerEntry(ctx context.Context, category string, args ...interface{}) *log
 			entry = entry.WithField(gopkg.LogTraceIdKey, traceId)
 		}
 		if spanId, ok := ctx.Value(gopkg.RequestHeaderSpanIdKey).(string); ok {
+			entry = entry.WithField(gopkg.LogParentSpanIdKey, spanId)
+		}
+		if spanId, ok := ctx.Value(gopkg.LogSpanIdKey).(string); ok {
 			entry = entry.WithField(gopkg.LogSpanIdKey, spanId)
 		}
 		if userId, ok := ctx.Value(gopkg.ContextRequestSysUserIdKey).(uint); ok {
