@@ -29,7 +29,7 @@ type Config struct {
 	Password       string
 	MaxIdle        int //最大空闲连接数
 	MaxActive      int //最大连接数
-	IdleTimeout    int //空闲连接超时时间 单位：纳秒
+	IdleTimeout    int //空闲连接超时时间 单位：毫秒
 	Database       int // 选择db
 	ConnectTimeout int //连接超时 单位毫秒
 	ReadTimeout    int //读取超时 单位毫秒
