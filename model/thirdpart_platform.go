@@ -59,3 +59,13 @@ const (
 	RelationSourceJinTun      RelationSource = 4 // 鲸吞
 	RelationSourceKFPT        RelationSource = 5 // 开放平台
 )
+
+// 匹配来源
+type MatchSource int
+
+const (
+	MatchSourceDefault                         MatchSource = 0 // 默认通讯录匹配
+	MatchSourcePluginOrder                     MatchSource = 1 // 插件订单,收货人手机号
+	MatchSource788Avatar                       MatchSource = 2 // 788头像昵称匹配（张宇）
+	MatchSourceEmptyAccountCheckAvatarNickname MatchSource = 3 // 空号检测头像昵称普配（乐远）
+)
