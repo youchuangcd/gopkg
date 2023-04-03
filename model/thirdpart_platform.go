@@ -59,3 +59,14 @@ const (
 	RelationSourceJinTun      RelationSource = 4 // 鲸吞
 	RelationSourceKFPT        RelationSource = 5 // 开放平台
 )
+
+// 关联匹配来源
+type RelationMatchSource int
+
+const (
+	RelationMatchSourcePluginOrder         RelationMatchSource = 1 // 插件订单,收货人手机号
+	RelationMatchSource788AvatarNickname   RelationMatchSource = 2 // 788头像昵称匹配
+	RelationMatchSourceSmallAppOrder       RelationMatchSource = 3 // 小程序订单资源匹配关联匹配
+	RelationMatchSourceMerchantRequest     RelationMatchSource = 4 // 商家请求资源匹配关联
+	RelationMatchSourceJingTunBecomeFriend RelationMatchSource = 5 // 鲸吞同步成为好友关联数据
+)
