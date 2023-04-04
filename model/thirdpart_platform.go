@@ -64,8 +64,10 @@ const (
 type MatchSource int
 
 const (
-	MatchSourceDefault                         MatchSource = 0 // 默认通讯录匹配
-	MatchSourcePluginOrder                     MatchSource = 1 // 插件订单,收货人手机号
-	MatchSource788Avatar                       MatchSource = 2 // 788头像昵称匹配（张宇）
-	MatchSourceEmptyAccountCheckAvatarNickname MatchSource = 3 // 空号检测头像昵称普配（乐远）
+	MatchSourceDefault             MatchSource = 0 // 默认通讯录匹配
+	MatchSourcePluginOrder         MatchSource = 1 // 插件订单,收货人手机号
+	MatchSource788Avatar           MatchSource = 2 // 788头像昵称匹配（张宇）
+	MatchSourceSmallAppOrder       MatchSource = 3 // 小程序订单资源匹配关联匹配（张宇）
+	MatchSourceMerchantRequest     MatchSource = 4 // 商家请求资源匹配关联（张宇）
+	MatchSourceJingTunBecomeFriend MatchSource = 5 // 鲸吞同步成为好友关联数据
 )
