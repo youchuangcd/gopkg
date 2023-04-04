@@ -47,6 +47,8 @@ const (
 	RelationTypeMonitorTaskCallback RelationType = 1008 // 主页链接用户数据
 	RelationTypeUserLevel           RelationType = 1009 // 用户等级数据
 	RelationTypeGoodsComment        RelationType = 1010 // 商品评论数据
+	RelationTypeUpdateUserInfo      RelationType = 1011 // 用户主页信息(开播更新)
+	RelationTypeBecomeFriend        RelationType = 1101 // 成为好友关联数据
 )
 
 // 关联来源
