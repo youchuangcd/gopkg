@@ -92,19 +92,20 @@ type logger interface {
 	LogError(ctx context.Context, logCategory string, logContent map[string]interface{}, msg string)
 }
 type Kafka struct {
-	callback      func(ctx context.Context, s *sarama.ConsumerMessage) error
-	group         string
-	consumerAddrs []string
-	producerAddrs []string
-	logReplaceStr string
-	syncProducer  sarama.SyncProducer
-	goPool        *ants.Pool // 协程池
+	callback        func(ctx context.Context, s *sarama.ConsumerMessage) error
+	group           string
+	consumerAddrs   []string
+	producerAddrs   []string
+	syncProducer    sarama.SyncProducer
+	goPool          *ants.Pool // 协程池
+	consumerOffsets int64      // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
 }
 
 type Config struct {
-	Group        string
-	ConsumerHost string
-	ProducerHost string
+	Group           string
+	ConsumerHost    string
+	ProducerHost    string
+	consumerOffsets int64 // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
 }
 
 // handler，核心的消费者业务实现
@@ -114,9 +115,10 @@ type consumerGroupHandler struct {
 
 func New(conf Config) Kafka {
 	k := Kafka{
-		group:         conf.Group,
-		producerAddrs: strings.Split(conf.ProducerHost, ","),
-		consumerAddrs: strings.Split(conf.ConsumerHost, ","),
+		group:           conf.Group,
+		producerAddrs:   strings.Split(conf.ProducerHost, ","),
+		consumerAddrs:   strings.Split(conf.ConsumerHost, ","),
+		consumerOffsets: conf.consumerOffsets,
 	}
 	kConf := k.getConfig()
 	addrs := k.getProducerAddr()
@@ -200,7 +202,8 @@ func (k Kafka) getConfig() *sarama.Config {
 	conf.Producer.RequiredAcks = sarama.WaitForAll
 	conf.Producer.Partitioner = sarama.NewRandomPartitioner
 	conf.Consumer.Return.Errors = true
-	conf.Consumer.Offsets.Initial = sarama.OffsetOldest
+	//conf.Consumer.Offsets.Initial = sarama.OffsetOldest
+	conf.Consumer.Offsets.Initial = k.consumerOffsets
 	//conf.Consumer.Offsets.AutoCommit.Enable = false //手动提交偏移量
 	conf.Version = sarama.V0_11_0_1 //kafka server的版本号
 	sarama.PanicHandler = logConf.PanicHandler
