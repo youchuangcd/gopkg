@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -218,4 +219,14 @@ func ValidatePlatform(platform uint16, platformSlice []uint16) (valid bool) {
 		}
 	}
 	return
+}
+
+// IsMobile
+//
+//	@Description: 检测是否是手机号
+//	@param mobile
+//	@return bool
+func IsMobile(mobile string) bool {
+	res, _ := regexp.MatchString(`^(?:\+?86)?1\d{10}$`, mobile)
+	return res
 }
