@@ -202,8 +202,10 @@ func (k Kafka) getConfig() *sarama.Config {
 	conf.Producer.RequiredAcks = sarama.WaitForAll
 	conf.Producer.Partitioner = sarama.NewRandomPartitioner
 	conf.Consumer.Return.Errors = true
-	//conf.Consumer.Offsets.Initial = sarama.OffsetOldest
-	conf.Consumer.Offsets.Initial = k.consumerOffsets
+	conf.Consumer.Offsets.Initial = sarama.OffsetOldest
+	if k.consumerOffsets != 0 {
+		conf.Consumer.Offsets.Initial = k.consumerOffsets
+	}
 	//conf.Consumer.Offsets.AutoCommit.Enable = false //手动提交偏移量
 	conf.Version = sarama.V0_11_0_1 //kafka server的版本号
 	sarama.PanicHandler = logConf.PanicHandler
