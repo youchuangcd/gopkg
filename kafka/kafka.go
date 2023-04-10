@@ -230,8 +230,9 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 	client, err := sarama.NewConsumerGroup(addrs, consumerGroupName, conf)
 	if err != nil {
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"err":    err,
-			"topics": topics,
+			"err":     err,
+			"topics":  topics,
+			"address": k.consumerAddrs,
 		}, "Consumer failed")
 		panic(fmt.Sprintf("创建消费者分组失败, topics: %v, err: %s", topics, err.Error()))
 	}
