@@ -179,6 +179,7 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 			}
 			if err != nil {
 				logMap["err"] = err
+				logMap["address"] = h.consumerAddrs
 				logConf.Logger.LogError(newCtx, logConf.Category, logMap, "[Consumer] Message Failed")
 				// 扔到重试队列或死信队列
 			} else {
@@ -240,8 +241,9 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 		err = client.Consume(ctx, topics, handler) // consume 操作，死循环。exampleConsumerGroupHandler的ConsumeClaim不允许退出，也就是操作到完毕。
 		if err != nil {
 			logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-				"topics": topics,
-				"err":    err,
+				"topics":  topics,
+				"err":     err,
+				"address": k.consumerAddrs,
 			}, "msg consumer failed")
 		}
 	}
@@ -300,9 +302,10 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 	if err != nil {
 		//content = k.cutStrFromLogConfig(content)
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"err":   err,
-			"topic": topic,
-			"msg":   msg,
+			"err":     err,
+			"topic":   topic,
+			"msg":     msg,
+			"address": k.producerAddrs,
 		}, "send msg failed")
 		return
 	}
@@ -352,9 +355,10 @@ func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []s
 	err = k.syncProducer.SendMessages(msgs)
 	if err != nil {
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
-			"msgs":  msgs,
-			"err":   err,
-			"topic": topic,
+			"msgs":    msgs,
+			"err":     err,
+			"topic":   topic,
+			"address": k.producerAddrs,
 		}, "send msg failed")
 		return
 	}
