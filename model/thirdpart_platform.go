@@ -52,6 +52,21 @@ const (
 	RelationTypeBecomeFriend        RelationType = 1101 // 成为好友关联数据
 )
 
+var RelationTypeMap = map[RelationType]string{
+	RelationTypeOrder:               "订单数据",
+	RelationTypeGood:                "商品数据",
+	RelationTypeLiveAction:          "直播间行为数据",
+	RelationTypeTarget:              "关键词目标数据",
+	RelationTypeVideoList:           "视频列表数据",
+	RelationTypeVideoComment:        "视频评论数据",
+	RelationTypeLiveLuckyBagDy:      "福袋数据",
+	RelationTypeMonitorTaskCallback: "主页链接用户数据",
+	RelationTypeUserLevel:           "用户等级数据",
+	RelationTypeGoodsComment:        "商品评论数据",
+	RelationTypeUpdateUserInfo:      "用户主页信息(开播更新)",
+	RelationTypeBecomeFriend:        "成为好友关联数据",
+}
+
 // 关联来源
 type RelationSource int
 
@@ -62,6 +77,14 @@ const (
 	RelationSourceJinTun      RelationSource = 4 // 鲸吞
 	RelationSourceKFPT        RelationSource = 5 // 开放平台
 )
+
+var RelationSourceMap = map[RelationSource]string{
+	RelationSourceDou1:        "抖一",
+	RelationSourceBiLin:       "比邻",
+	RelationSourcePluginOrder: "插件订单",
+	RelationSourceJinTun:      "鲸吞",
+	RelationSourceKFPT:        "开放平台",
+}
 
 // 匹配来源
 type MatchSource int
@@ -74,3 +97,12 @@ const (
 	MatchSourceMerchantRequest     MatchSource = 4 // 商家请求资源匹配关联（张宇）
 	MatchSourceJingTunBecomeFriend MatchSource = 5 // 鲸吞同步成为好友关联数据
 )
+
+var MatchSourceMap = map[MatchSource]string{
+	MatchSourceDefault:             "默认通讯录匹配",
+	MatchSourcePluginOrder:         "插件订单",
+	MatchSource788Avatar:           "788头像昵称匹配",
+	MatchSourceSmallAppOrder:       "小程序订单资源匹配关联匹配",
+	MatchSourceMerchantRequest:     "商家请求资源匹配关联",
+	MatchSourceJingTunBecomeFriend: "鲸吞同步成为好友关联数据",
+}
