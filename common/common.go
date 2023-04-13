@@ -199,7 +199,7 @@ func StringPriceToInt(price string) int {
 // @param args
 // @return string
 func GetMobileJoinAreaCode(m string, args ...string) string {
-	areaCode := "+86"
+	areaCode := "86"
 	if len(args) == 1 && args[0] != "" {
 		areaCode = strings.TrimLeft(args[0], "+")
 	}
