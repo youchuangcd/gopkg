@@ -13,7 +13,7 @@ func LPush(ctx context.Context, key string, value interface{}) *Reply {
 }
 
 // 当列表存在则将元素插入表头
-func LPushx(ctx context.Context, key string, value interface{}) *Reply {
+func LPushX(ctx context.Context, key string, value interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "lpushx", key, value))
@@ -27,7 +27,7 @@ func RPush(ctx context.Context, key string, value interface{}) *Reply {
 }
 
 // 当列表存在则将元素插入表尾
-func RPushx(ctx context.Context, key string, value interface{}) *Reply {
+func RPushX(ctx context.Context, key string, value interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "rpushx", key, value))
@@ -48,7 +48,7 @@ func LPop(ctx context.Context, key string) *Reply {
 }
 
 // 阻塞并弹出头元素
-func BLpop(ctx context.Context, key, timeout interface{}) *Reply {
+func BLPop(ctx context.Context, key, timeout interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "blpop", redis.Args{}.AddFlat(key).Add(timeout)...))
@@ -62,7 +62,7 @@ func RPop(ctx context.Context, key string) *Reply {
 }
 
 // 阻塞并弹出末尾元素
-func BRpop(ctx context.Context, key, timeout interface{}) *Reply {
+func BRPop(ctx context.Context, key, timeout interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "brpop", key, timeout))
@@ -90,14 +90,14 @@ func LSet(ctx context.Context, key string, index, value interface{}) *Reply {
 }
 
 // 弹出source尾元素并返回，将弹出元素插入destination列表的开头
-func RPoplpush(ctx context.Context, key, source, destination string) *Reply {
+func RPopLPush(ctx context.Context, key, source, destination string) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "rpoplpush ", key, source, destination))
 }
 
 // 阻塞并弹出尾元素，将弹出元素插入另一列表的开头
-func BRpoplpush(ctx context.Context, key, source, destination string, timeout interface{}) *Reply {
+func BRPopLPush(ctx context.Context, key, source, destination string, timeout interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "brpoplpush ", key, source, destination, timeout))

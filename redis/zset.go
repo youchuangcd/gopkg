@@ -36,7 +36,7 @@ func ZCard(ctx context.Context, key string) *Reply {
 }
 
 // 返回指定元素的排名
-func ZEank(ctx context.Context, key string, member interface{}) *Reply {
+func ZRank(ctx context.Context, key string, member interface{}) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "zrank", key, member))
@@ -61,17 +61,17 @@ func ZRange(ctx context.Context, key string, start, stop interface{}, withScore 
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	if len(withScore) > 0 && withScore[0] {
-		return getReply(redis.DoContext(c, ctx, "zrange", key, start, stop, withScore))
+		return getReply(redis.DoContext(c, ctx, "zrange", key, start, stop, "WITHSCORES"))
 	}
 	return getReply(redis.DoContext(c, ctx, "zrange", key, start, stop))
 }
 
 // 倒序返回指定区间内的元素
-func ZRevrange(ctx context.Context, key string, start, stop interface{}, withScore ...bool) *Reply {
+func ZRevRange(ctx context.Context, key string, start, stop interface{}, withScore ...bool) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	if len(withScore) > 0 && withScore[0] {
-		return getReply(redis.DoContext(c, ctx, "zrevrange", key, start, stop, withScore))
+		return getReply(redis.DoContext(c, ctx, "zrevrange", key, start, stop, "WITHSCORES"))
 	}
 	return getReply(redis.DoContext(c, ctx, "zrevrange", key, start, stop))
 }

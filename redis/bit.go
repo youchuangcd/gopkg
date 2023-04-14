@@ -27,7 +27,7 @@ func BitCount(ctx context.Context, key string, interval ...int64) *Reply {
 }
 
 // opt 包含 and、or、xor、not
-func BitTop(ctx context.Context, opt, destKey string, keys ...string) *Reply {
+func BitOp(ctx context.Context, opt, destKey string, keys ...string) *Reply {
 	c, _ := getPoolInstance(ctx).GetContext(ctx)
 	defer c.Close()
 	return getReply(redis.DoContext(c, ctx, "bitop", opt, redis.Args{}.Add(destKey).AddFlat(keys)))
