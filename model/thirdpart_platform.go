@@ -28,6 +28,7 @@ var ThirdpartPlatformIds = map[uint]string{
 	ThirdpartPlatformIdXhs:          "小红书",
 	ThirdpartPlatformIdWxOrder:      "微信小程序订单", //（云货优选和其它）
 	ThirdpartPlatformIdQQAccount:    "QQ号",
+	ThirdpartPlatformIdPdd:          "拼多多",
 }
 
 const ThirdpartPlatformIdDwsMobileData = 999         //dws手机号数据
