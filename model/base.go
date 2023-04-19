@@ -76,6 +76,8 @@ func GetDB(ctx context.Context, tx *gorm.DB, args ...interface{}) (db *gorm.DB) 
 			if key, ok := args[0].(string); ok {
 				gormDBMapKey = key
 			}
+		} else if key, ok := ctx.Value(gopkg.ContextDBMapKey).(string); ok { // 从上下文里切换
+			gormDBMapKey = key
 		}
 		db = gopkg.GormDBMap[gormDBMapKey].WithContext(ctx)
 	}

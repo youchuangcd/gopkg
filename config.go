@@ -84,6 +84,7 @@ var (
 // DB相关变量
 var (
 	GormDBMap           map[string]*gorm.DB
+	ContextDBMapKey     = "dbMapKey" // 上下文里记录要切换的db实例的key
 	GormDBMapKeyDefault = "default"
 )
 
