@@ -51,6 +51,7 @@ func InitRedis(configs []Config) {
 			if v.WriteTimeout == 0 {
 				v.WriteTimeout = 1000
 			}
+			nv := v
 			// 建立连接池
 			redisCollections[v.Name] = &Pool{
 				Pool: &redis.Pool{
@@ -59,12 +60,12 @@ func InitRedis(configs []Config) {
 					IdleTimeout: time.Duration(v.IdleTimeout) * time.Millisecond, //空闲连接超时时间
 					Wait:        true,
 					DialContext: func(ctx context.Context) (redis.Conn, error) {
-						con, err := redis.DialContext(ctx, "tcp", fmt.Sprintf("%s:%d", v.Host, v.Port),
-							redis.DialPassword(v.Password),
-							redis.DialDatabase(v.Database),
-							redis.DialConnectTimeout(time.Duration(v.ConnectTimeout)*time.Millisecond),
-							redis.DialReadTimeout(time.Duration(v.ReadTimeout)*time.Millisecond),
-							redis.DialWriteTimeout(time.Duration(v.WriteTimeout)*time.Millisecond))
+						con, err := redis.DialContext(ctx, "tcp", fmt.Sprintf("%s:%d", nv.Host, nv.Port),
+							redis.DialPassword(nv.Password),
+							redis.DialDatabase(nv.Database),
+							redis.DialConnectTimeout(time.Duration(nv.ConnectTimeout)*time.Millisecond),
+							redis.DialReadTimeout(time.Duration(nv.ReadTimeout)*time.Millisecond),
+							redis.DialWriteTimeout(time.Duration(nv.WriteTimeout)*time.Millisecond))
 						if err != nil {
 							mylog.Error(ctx, gopkg.LogRedis, "[redis init] "+err.Error())
 							return nil, err
