@@ -108,6 +108,10 @@ type Config struct {
 	consumerOffsets int64 // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
 }
 
+type ConsumerConfig struct {
+	ConsumerOffsets int64 // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
+}
+
 // handler，核心的消费者业务实现
 type consumerGroupHandler struct {
 	Kafka
@@ -213,7 +217,12 @@ func (k Kafka) getConfig() *sarama.Config {
 	return conf
 }
 
-func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName string, cb func(ctx context.Context, s *sarama.ConsumerMessage) error, goPoolSize int) {
+func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName string, cb func(ctx context.Context, s *sarama.ConsumerMessage) error, goPoolSize int, args ...interface{}) {
+	if len(args) > 0 {
+		if conf, ok := args[0].(ConsumerConfig); ok {
+			k.consumerOffsets = conf.ConsumerOffsets
+		}
+	}
 	conf := k.getConfig()
 	// 没有额外设置地址，取配置地址
 	addrs := k.getConsumerAddr()
