@@ -16,6 +16,8 @@ const (
 	EntityChannelWechatOrder  // 小程序订单
 	EntityChannelWechat       // 个微关联数据
 	EntityChannelJintunWechat // 鲸吞个微成为好友数据
+	EntityChannel8            // DATE4.19_NUM_2.8Y
+	EntityChannel9            // 特征匹配来源
 )
 
 var EntityChannelMap = map[EntityChannel]string{
