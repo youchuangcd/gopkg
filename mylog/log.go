@@ -7,6 +7,7 @@ kill -s USR1|USR2 程序的进程号
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/youchuangcd/gopkg"
@@ -142,6 +143,13 @@ type LoggerSpecialInterface interface {
 	AddHook(hook Hook)
 	Level(level string)
 	OutputPath(path string) (err error)
+}
+
+type ExtError map[any]interface{}
+
+func (p ExtError) String() string {
+	b, _ := json.Marshal(p)
+	return string(b)
 }
 
 func setNull(logger *logrus.Logger) {
