@@ -186,7 +186,7 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 				logMap["address"] = h.consumerAddrs
 				logConf.Logger.LogError(newCtx, logConf.Category, logMap, "[Consumer] Message Failed")
 				// 扔到重试队列或死信队列
-			} else {
+			} else if logConf.Producer {
 				logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[Consumer] Message Success")
 			}
 		})
