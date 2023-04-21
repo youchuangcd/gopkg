@@ -93,15 +93,15 @@ var RelationSourceMap = map[RelationSource]string{
 type MatchSource int
 
 const (
-	MatchSourceDefault                   MatchSource = 0  // 默认通讯录匹配
-	MatchSourcePluginOrder               MatchSource = 1  // 插件订单,收货人手机号
-	MatchSource788Avatar                 MatchSource = 2  // 788头像昵称匹配（张宇）
-	MatchSourceSmallAppOrder             MatchSource = 3  // 小程序订单资源匹配关联匹配（张宇）
-	MatchSourceMerchantRequest           MatchSource = 4  // 商家请求资源匹配关联（张宇）
-	MatchSourceJingTunBecomeFriend       MatchSource = 5  // 鲸吞同步成为好友关联数据
-	MatchSourceVideoNumber               MatchSource = 10 // 视频号
-	MatchSourceWechatBasicUser           MatchSource = 20 // 微信基础数据
-	MatchSourceEmptyAccountCheckAndOrder MatchSource = 30 // 空号检测+ 订单
+	MatchSourceDefault                   MatchSource = 0 // 默认通讯录匹配
+	MatchSourcePluginOrder               MatchSource = 1 // 插件订单,收货人手机号
+	MatchSource788Avatar                 MatchSource = 2 // 788头像昵称匹配（张宇）
+	MatchSourceSmallAppOrder             MatchSource = 3 // 小程序订单资源匹配关联匹配（张宇）
+	MatchSourceMerchantRequest           MatchSource = 4 // 商家请求资源匹配关联（张宇）
+	MatchSourceJingTunBecomeFriend       MatchSource = 5 // 鲸吞同步成为好友关联数据
+	MatchSourceVideoNumber               MatchSource = 6 // 视频号
+	MatchSourceWechatBasicUser           MatchSource = 7 // 微信基础数据
+	MatchSourceEmptyAccountCheckAndOrder MatchSource = 8 // 空号检测+ 订单
 )
 
 var MatchSourceMap = map[MatchSource]string{
