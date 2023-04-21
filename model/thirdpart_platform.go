@@ -2,33 +2,35 @@ package model
 
 const (
 	// 平台id枚举
-	ThirdpartPlatformIdWechat       uint = iota + 1 // 个微(已失效)
-	ThirdpartPlatformIdWechatWework                 // 企微
-	ThirdpartPlatformId788Code                      // 788码(用户还未注册企微，通过手机号搜到了微信)
-	ThirdpartPlatformIdKs                           // 快手
-	ThirdpartPlatformIdDy                           // 抖音
-	ThirdpartPlatformIdQq                           // QQ
-	ThirdpartPlatformIdGw                           // 个微
-	ThirdpartPlatformIdSph                          // 视频号
-	ThirdpartPlatformIdXhs                          // 小红书
-	ThirdpartPlatformIdWxOrder                      // 微信小程序订单（云货优选和其它）
-	ThirdpartPlatformIdQQAccount                    // QQ号
-	ThirdpartPlatformIdPdd                          // 拼多多
+	ThirdpartPlatformIdWechat          uint = iota + 1 // 个微(已失效)
+	ThirdpartPlatformIdWechatWework                    // 企微
+	ThirdpartPlatformId788Code                         // 788码(用户还未注册企微，通过手机号搜到了微信)
+	ThirdpartPlatformIdKs                              // 快手
+	ThirdpartPlatformIdDy                              // 抖音
+	ThirdpartPlatformIdQq                              // QQ
+	ThirdpartPlatformIdGw                              // 个微
+	ThirdpartPlatformIdSph                             // 视频号
+	ThirdpartPlatformIdXhs                             // 小红书
+	ThirdpartPlatformIdWxOrder                         // 微信小程序订单（云货优选和其它）
+	ThirdpartPlatformIdQQAccount                       // QQ号
+	ThirdpartPlatformIdPdd                             // 拼多多
+	ThirdpartPlatformIdWechatVideoLive                 // 个微视频号
 )
 
 var ThirdpartPlatformIds = map[uint]string{
-	ThirdpartPlatformIdWechat:       "个微",
-	ThirdpartPlatformIdWechatWework: "企微",
-	ThirdpartPlatformId788Code:      "788码",
-	ThirdpartPlatformIdKs:           "快手",
-	ThirdpartPlatformIdDy:           "抖音",
-	ThirdpartPlatformIdQq:           "QQ",
-	ThirdpartPlatformIdGw:           "个微",
-	ThirdpartPlatformIdSph:          "视频号",
-	ThirdpartPlatformIdXhs:          "小红书",
-	ThirdpartPlatformIdWxOrder:      "微信小程序订单", //（云货优选和其它）
-	ThirdpartPlatformIdQQAccount:    "QQ号",
-	ThirdpartPlatformIdPdd:          "拼多多",
+	ThirdpartPlatformIdWechat:          "个微",
+	ThirdpartPlatformIdWechatWework:    "企微",
+	ThirdpartPlatformId788Code:         "788码",
+	ThirdpartPlatformIdKs:              "快手",
+	ThirdpartPlatformIdDy:              "抖音",
+	ThirdpartPlatformIdQq:              "QQ",
+	ThirdpartPlatformIdGw:              "个微",
+	ThirdpartPlatformIdSph:             "视频号",
+	ThirdpartPlatformIdXhs:             "小红书",
+	ThirdpartPlatformIdWxOrder:         "微信小程序订单", //（云货优选和其它）
+	ThirdpartPlatformIdQQAccount:       "QQ号",
+	ThirdpartPlatformIdPdd:             "拼多多",
+	ThirdpartPlatformIdWechatVideoLive: "个微视频号",
 }
 
 const ThirdpartPlatformIdDwsMobileData = 999         //dws手机号数据
