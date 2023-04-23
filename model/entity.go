@@ -18,6 +18,8 @@ const (
 	EntityChannelJintunWechat // 鲸吞个微成为好友数据
 	EntityChannel8            // DATE4.19_NUM_2.8Y
 	EntityChannel9            // 特征匹配来源
+	EntityChannel10           // ga
+	EntityChannel11           // f_xxx_gb_4_23 来源
 )
 
 var EntityChannelMap = map[EntityChannel]string{
