@@ -89,6 +89,8 @@ type Config struct {
 	Group        string
 	AccessKey    string
 	SecretKey    string
+	Username     string
+	Password     string
 	UnmarshalMap map[string]UnmarshalMapValue
 }
 type UnmarshalMapValue struct {
@@ -145,6 +147,8 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 		CacheDir:            currentDir,         //默认会把缓存下来的文件写入 currentDir/config
 		AccessKey:           p.config.AccessKey, // ACM&KMS的AccessKey，用于配置中心的鉴权
 		SecretKey:           p.config.SecretKey,
+		Username:            p.config.Username,
+		Password:            p.config.Password,
 	}
 	// 创建动态配置客户端的另一种方式 (推荐)
 	configClient, err = clients.NewConfigClient(
@@ -210,6 +214,8 @@ func (p *Nacos) createNaming() (namingClient naming_client.INamingClient, err er
 		CacheDir:            currentDir,         //默认会把缓存下来的文件写入 currentDir/config
 		AccessKey:           p.config.AccessKey, // ACM&KMS的AccessKey，用于配置中心的鉴权
 		SecretKey:           p.config.SecretKey,
+		Username:            p.config.Username,
+		Password:            p.config.Password,
 	}
 	// 创建服务发现客户端的另一种方式 (推荐)
 	namingClient, err = clients.NewNamingClient(
