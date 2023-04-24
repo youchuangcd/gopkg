@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/youchuangcd/gopkg"
 	"math"
@@ -229,4 +230,55 @@ func ValidatePlatform(platform uint16, platformSlice []uint16) (valid bool) {
 func IsMobile(mobile string) bool {
 	res, _ := regexp.MatchString(`^(?:\+?86)?1\d{10}$`, mobile)
 	return res
+}
+
+// GetKsAvatarTraitCode
+//
+//	@Description: 获取快手头像特征码
+//	@param avatar
+//	@return traitCode
+//	@return err
+func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
+	if avatar == "" {
+		return
+	}
+	anchorArr := strings.Split(avatar, "/")
+	if len(anchorArr) > 0 {
+		tmp := anchorArr[len(anchorArr)-1]
+		if strings.Contains(tmp, ":") {
+			tmp = strings.Split(anchorArr[len(anchorArr)-1], ":")[0]
+		} else if strings.Contains(tmp, ".") {
+			tmp = strings.Split(anchorArr[len(anchorArr)-1], ".")[0]
+		}
+		tmp = strings.TrimSuffix(tmp, "1y8")
+		var anchorImgByte []byte
+		anchorImgByte, err = base64.StdEncoding.DecodeString(tmp)
+		if err == nil {
+			anchorImgArr := strings.Split(string(anchorImgByte), ".")
+			if len(anchorImgArr) > 0 {
+				traitCode = strings.TrimPrefix(strings.TrimSpace(anchorImgArr[0]), ";")
+			}
+		}
+	}
+	return
+}
+
+// GetDyAvatarTraitCode
+//
+//	@Description: 抖音头像获取特征码
+//	@param avatar
+//	@return traitCode
+//	@return err
+func GetDyAvatarTraitCode(avatar string) (traitCode string, err error) {
+	if avatar == "" {
+		return
+	}
+	anchorArr := strings.Split(avatar, "/")
+	if len(anchorArr) > 0 {
+		anchorImgArr := strings.Split(anchorArr[len(anchorArr)-1], ".")
+		if len(anchorImgArr) > 0 {
+			traitCode = anchorImgArr[0]
+		}
+	}
+	return
 }
