@@ -15,6 +15,7 @@ const (
 	ThirdpartPlatformIdQQAccount                       // QQ号
 	ThirdpartPlatformIdPdd                             // 拼多多
 	ThirdpartPlatformIdWechatVideoLive                 // 个微视频号
+	ThirdpartPlatformIdTb                              // 淘宝
 )
 
 var ThirdpartPlatformIds = map[uint]string{
