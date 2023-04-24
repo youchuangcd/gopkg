@@ -66,7 +66,7 @@ func LoggerHandle(logCategory string) gin.HandlerFunc {
 		logContent["latency_time"] = latencyTime
 		logContent["response_code"] = responseData["code"]
 		logContent["response_msg"] = responseData["msg"]
-		logContent["response_data"] = responseDataByte
+		logContent["response_data"] = string(responseDataByte)
 		logContent["log_type"] = gopkg.RequestLogTypeFlag
 		mylog.WithInfo(c, logCategory, logContent, "request-end")
 	}
