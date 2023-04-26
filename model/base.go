@@ -45,6 +45,13 @@ type GormModelAt struct {
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
 
+// gorm.Model dws的定义
+type GormModelAtDws struct {
+	ID        uint            `json:"id" mapstructure:"id" redis:"id"`
+	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
+	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
+}
+
 type Interface interface {
 	TableName() string
 }
