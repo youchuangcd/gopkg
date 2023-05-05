@@ -156,7 +156,7 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 	//ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
 	for msg := range claim.Messages() {
 		select {
-		case <-sess.Context().Done():
+		case <-ctx.Done():
 			break
 		default:
 		}
