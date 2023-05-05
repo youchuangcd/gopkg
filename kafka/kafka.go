@@ -251,6 +251,7 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 		select {
 		case <-ctx.Done():
 			break
+		default:
 		}
 		err = client.Consume(ctx, topics, handler) // consume 操作，死循环。exampleConsumerGroupHandler的ConsumeClaim不允许退出，也就是操作到完毕。
 		if err != nil {
