@@ -152,8 +152,8 @@ func (h consumerGroupHandler) Cleanup(s sarama.ConsumerGroupSession) error {
 }
 func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error { // consume
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
-	//ctx := sess.Context()
-	ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
+	ctx := sess.Context()
+	//ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
 	for msg := range claim.Messages() {
 		select {
 		case <-sess.Context().Done():
@@ -248,6 +248,10 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 	defer client.Close()
 	handler := consumerGroupHandler{Kafka: k} // 必须传递一个handler
 	for {                                     // for循环的目的是因为存在重平衡，他会重新启动
+		select {
+		case <-ctx.Done():
+			break
+		}
 		err = client.Consume(ctx, topics, handler) // consume 操作，死循环。exampleConsumerGroupHandler的ConsumeClaim不允许退出，也就是操作到完毕。
 		if err != nil {
 			logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
