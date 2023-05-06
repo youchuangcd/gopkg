@@ -32,6 +32,7 @@ var ThirdpartPlatformIds = map[uint]string{
 	ThirdpartPlatformIdQQAccount:       "QQ号",
 	ThirdpartPlatformIdPdd:             "拼多多",
 	ThirdpartPlatformIdWechatVideoLive: "个微视频号",
+	ThirdpartPlatformIdTb:              "淘宝",
 }
 
 const ThirdpartPlatformIdDwsMobileData = 999         //dws手机号数据
