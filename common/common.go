@@ -246,9 +246,9 @@ func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
 	if len(anchorArr) > 0 {
 		tmp := anchorArr[len(anchorArr)-1]
 		if strings.Contains(tmp, ":") {
-			tmp = strings.Split(anchorArr[len(anchorArr)-1], ":")[0]
+			tmp = strings.Split(tmp, ":")[0]
 		} else if strings.Contains(tmp, ".") {
-			tmp = strings.Split(anchorArr[len(anchorArr)-1], ".")[0]
+			tmp = strings.Split(tmp, ".")[0]
 		}
 		tmp = strings.TrimSuffix(tmp, "1y8")
 		var anchorImgByte []byte
