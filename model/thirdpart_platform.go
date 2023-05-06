@@ -106,6 +106,7 @@ const (
 	MatchSourceEmptyAccountCheckAndOrder MatchSource = 8 // 空号检测+ 订单
 	MatchSource98                        MatchSource = 98
 	MatchSource99                        MatchSource = 99
+	MatchSource100                       MatchSource = 100 // 特征匹配
 )
 
 var MatchSourceMap = map[MatchSource]string{
