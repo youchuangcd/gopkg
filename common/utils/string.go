@@ -65,20 +65,21 @@ func RemoveRepeatedStr(s []string) []string {
 // @return uid
 // @return err
 var (
-	uuidCount = uuidCountParam{
-		initRandCount: strconv.FormatInt(time.Now().UnixNano(), 10) + strconv.FormatInt(int64(os.Getpid()), 10), // 降低多节点同时获取id可能出现重复的概率
+	macAddr, _ = GetMac()
+	uuidCount  = uuidCountParam{
+		initStr: macAddr + strconv.FormatInt(time.Now().UnixNano(), 10) + strconv.FormatInt(int64(os.Getpid()), 10), // 降低多节点同时获取id可能出现重复的概率
 	}
 )
 
 type uuidCountParam struct {
-	count         atomic.Uint64
-	initRandCount string
+	count   atomic.Uint64
+	initStr string
 }
 
 func UUID() (uid MyUUID, err error) {
 	// 计数器值 + 19位时间戳 纳秒级
 	uid = MyUUID{
-		Value: MD5V([]byte(uuidCount.initRandCount + strconv.FormatUint(uuidCount.count.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
+		Value: MD5V([]byte(uuidCount.initStr + strconv.FormatUint(uuidCount.count.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
 	}
 	return uid, nil
 }
