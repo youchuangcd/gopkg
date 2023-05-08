@@ -2,7 +2,6 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"testing"
 )
 
@@ -13,10 +12,11 @@ func TestCutStr(t *testing.T) {
 	t.Log("新的内容: ", CutStr(s, 20, "..."))
 }
 
-func TestUUID(t *testing.T) {
-	s := GenTraceId(context.Background())
-	fmt.Println(s)
-	t.Log("新的内容: ", s)
+func BenchmarkUUID(b *testing.B) {
+	ctx := context.Background()
+	for i := 0; i < 1000000; i++ {
+		GenTraceId(ctx)
+	}
 }
 
 func BenchmarkCutStr(b *testing.B) {
