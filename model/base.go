@@ -52,32 +52,6 @@ type GormModelAtDws struct {
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
 
-// BeforeCreate
-//
-//	@Description: 修复更新时间与创建时间不一致的问题，因为先执行update把结构体里的updated_at已赋值，所以此处重置
-//	@receiver p
-//	@param tx
-//	@return err
-func (p *GormModelAt) BeforeCreate(tx *gorm.DB) (err error) {
-	if !p.UpdatedAt.IsZero() && p.CreatedAt.IsZero() {
-		p.UpdatedAt = LocalDateMsTime{}
-	}
-	return
-}
-
-// BeforeCreate
-//
-//	@Description: 修复更新时间与创建时间不一致的问题，因为先执行update把结构体里的updated_at已赋值，所以此处重置
-//	@receiver p
-//	@param tx
-//	@return err
-func (p *GormModelAtDws) BeforeCreate(tx *gorm.DB) (err error) {
-	if !p.UpdatedAt.IsZero() && p.CreatedAt.IsZero() {
-		p.UpdatedAt = LocalDateMsTime{}
-	}
-	return
-}
-
 type Interface interface {
 	TableName() string
 }
