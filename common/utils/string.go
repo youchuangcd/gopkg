@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 	"github.com/youchuangcd/gopkg"
-	"math"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -65,20 +65,20 @@ func RemoveRepeatedStr(s []string) []string {
 // @return uid
 // @return err
 var (
-	uuidCount            = atomic.Uint64{} // 唯一id的全局计数器，解决单机唯一id冲突的问题
-	resetMax      uint64 = math.MaxUint64 - 1000000
-	initRandCount        = strconv.FormatInt(time.Now().UnixNano(), 10) // 降低多节点同时获取id可能出现重复的概率
+	uuidCount = uuidCountParam{
+		initRandCount: strconv.FormatInt(time.Now().UnixNano(), 10) + strconv.FormatInt(int64(os.Getpid()), 10), // 降低多节点同时获取id可能出现重复的概率
+	}
 )
 
+type uuidCountParam struct {
+	count         atomic.Uint64
+	initRandCount string
+}
+
 func UUID() (uid MyUUID, err error) {
-	// 防止超出最大值
-	if uuidCount.Load() > resetMax {
-		// 跟旧值一致才修改
-		uuidCount.CompareAndSwap(uuidCount.Load(), 0)
-	}
 	// 计数器值 + 19位时间戳 纳秒级
 	uid = MyUUID{
-		Value: MD5V([]byte(initRandCount + strconv.FormatUint(uuidCount.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
+		Value: MD5V([]byte(uuidCount.initRandCount + strconv.FormatUint(uuidCount.count.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
 	}
 	return uid, nil
 }
