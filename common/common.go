@@ -251,14 +251,19 @@ func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
 			tmp = strings.Split(tmp, ".")[0]
 		}
 		tmp = strings.TrimSuffix(tmp, "1y8")
-		var anchorImgByte []byte
-		anchorImgByte, err = base64.RawURLEncoding.DecodeString(tmp)
-		if err == nil {
-			anchorImgArr := strings.Split(string(anchorImgByte), ".")
-			if len(anchorImgArr) > 0 {
-				traitCode = strings.TrimPrefix(strings.TrimSpace(anchorImgArr[0]), ";")
+		if len(tmp) > 20 {
+			var anchorImgByte []byte
+			anchorImgByte, err = base64.RawURLEncoding.DecodeString(tmp)
+			if err == nil {
+				anchorImgArr := strings.Split(string(anchorImgByte), ".")
+				if len(anchorImgArr) > 0 {
+					traitCode = strings.TrimPrefix(strings.TrimSpace(anchorImgArr[0]), ";")
+				}
 			}
+		} else {
+			traitCode = tmp
 		}
+
 	}
 	return
 }
