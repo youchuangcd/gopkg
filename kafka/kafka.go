@@ -175,6 +175,7 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 			err := h.callback(newCtx, tmpMsg)
 			logMap := map[string]interface{}{
 				"topic":        tmpMsg.Topic,
+				"group":        h.Kafka.group,
 				"partition":    tmpMsg.Partition,
 				"offset":       tmpMsg.Offset,
 				"maxOffsetSub": highWaterMarkOffset - tmpMsg.Offset,
@@ -233,9 +234,10 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 	if err != nil {
 		panic("消费者" + topics[0] + "初始化协程池失败")
 	}
-	if consumerGroupName == "" {
+	if consumerGroupName == "" && k.group != "" {
 		consumerGroupName = k.group
 	}
+	k.group = consumerGroupName
 	client, err := sarama.NewConsumerGroup(addrs, consumerGroupName, conf)
 	if err != nil {
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
