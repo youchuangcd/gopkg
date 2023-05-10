@@ -257,7 +257,7 @@ func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
 			if err == nil {
 				anchorImgArr := strings.Split(string(anchorImgByte), ".")
 				if len(anchorImgArr) > 0 {
-					traitCode = strings.TrimPrefix(strings.TrimSpace(anchorImgArr[0]), ";")
+					traitCode = strings.TrimLeft(strings.TrimSpace(anchorImgArr[0]), ";-")
 				}
 			}
 		} else {
