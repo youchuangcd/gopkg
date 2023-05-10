@@ -251,7 +251,7 @@ func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
 			tmp = strings.Split(tmp, ".")[0]
 		}
 		tmp = strings.TrimSuffix(tmp, "1y8")
-		if len(tmp) > 20 {
+		if len(tmp) > 20 && strings.HasPrefix(tmp, "C") {
 			var anchorImgByte []byte
 			anchorImgByte, err = base64.RawURLEncoding.DecodeString(tmp)
 			if err == nil {
