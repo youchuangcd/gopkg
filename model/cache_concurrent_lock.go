@@ -58,3 +58,24 @@ func CacheConcurrentUnLock(ctx context.Context, key string, args ...interface{})
 	}
 	return
 }
+
+// CacheConcurrentExpire
+//
+//	@Description: 并发请求锁续期
+//	@param ctx
+//	@param key
+//	@param expire
+//	@return err
+func CacheConcurrentExpire(ctx context.Context, key string, expire int64) (err error) {
+	key = concurrentLockJoinPrefix(ctx, key)
+	err = redis.Expire(ctx, key, expire).Error()
+	if err != nil {
+		logContent := map[string]interface{}{
+			"err":    err,
+			"key":    key,
+			"expire": expire,
+		}
+		mylog.WithError(ctx, gopkg.LogRedis, logContent, "并发请求锁续期失败")
+	}
+	return
+}
