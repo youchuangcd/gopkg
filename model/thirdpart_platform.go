@@ -104,9 +104,10 @@ const (
 	MatchSourceVideoNumber               MatchSource = 6 // 视频号
 	MatchSourceWechatBasicUser           MatchSource = 7 // 微信基础数据
 	MatchSourceEmptyAccountCheckAndOrder MatchSource = 8 // 空号检测+ 订单
+	MatchSourceFeatureMatch              MatchSource = 9 // 特征匹配
 	MatchSource98                        MatchSource = 98
 	MatchSource99                        MatchSource = 99
-	MatchSource100                       MatchSource = 100 // 特征匹配
+	MatchSource100                       MatchSource = 9 // 特征匹配
 )
 
 var MatchSourceMap = map[MatchSource]string{
