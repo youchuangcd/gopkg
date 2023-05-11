@@ -25,10 +25,10 @@ func IsNowInTimeRange(now time.Time, startTimeStr, endTimeStr string) bool {
 	if err != nil {
 		return false
 	}
-	// 如果结束时间是0点0分0秒，就需要加一天
-	//if endTimeStr == "00:00:00" {
-	//	timeEnd = timeEnd.AddDate(0,0,1)
-	//}
+	// 如果结束时间小于开始时间，就需要加一天
+	if timeEnd.Before(timeStart) {
+		timeEnd = timeEnd.AddDate(0, 0, 1)
+	}
 	//使用time的Before和After方法，判断当前时间是否在参数的时间范围
 	return now.Before(timeEnd) && now.After(timeStart)
 }
