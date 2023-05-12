@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptrace"
 	"net/http/httputil"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -94,6 +95,32 @@ func (r Client) DoRequestWith(ctx context.Context, method, reqUrl string, header
 	}
 	req.ContentLength = int64(bodyLength)
 	return r.Do(ctx, req)
+}
+
+// DoRequestWithForm Form请求
+func (r Client) DoRequestWithForm(ctx context.Context, method, reqUrl string, headers http.Header,
+	data interface{}) (resp *http.Response, err error) {
+
+	var reqBody []byte
+	if data != nil {
+		// 直接传url.Values encode后的字节
+		if v, ok := data.([]byte); ok {
+			reqBody = v
+		} else if v2, ok2 := data.(string); ok2 {
+			reqBody = []byte(v2)
+		} else if v3, ok3 := data.(url.Values); ok3 {
+			reqBody = []byte(v3.Encode())
+		}
+	}
+
+	if headers == nil {
+		headers = http.Header{}
+	}
+
+	if headers.Get("Content-Type") == "" {
+		headers.Add("Content-Type", "application/x-www-form-urlencoded")
+	}
+	return r.DoRequestWith(ctx, method, reqUrl, headers, bytes.NewReader(reqBody), len(reqBody))
 }
 
 // DoRequestWithJson JSON请求
