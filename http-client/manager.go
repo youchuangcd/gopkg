@@ -3,6 +3,7 @@ package httpclient
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/http-client/auth"
 	"github.com/youchuangcd/gopkg/http-client/client"
@@ -13,9 +14,11 @@ import (
 )
 
 var (
-	defaultManager *Manager
-	once           sync.Once
-	DefaultTimeout = gopkg.HttpClientTimeout // 客户端默认超时
+	defaultManager             *Manager
+	once                       sync.Once
+	DefaultTimeout             = gopkg.HttpClientTimeout // 客户端默认超时
+	defaultMaxIdleConns        = gopkg.HttpClientMaxIdleConns
+	defaultMaxIdleConnsPerHost = gopkg.HttpClientMaxIdleConnsPerHost
 )
 
 type Manager struct {
@@ -67,6 +70,14 @@ type transport struct {
 func newTransport(credentials *auth.Credentials, tr http.RoundTripper) *transport {
 	if tr == nil {
 		tr = http.DefaultTransport
+		defaultTransportPointer, ok := tr.(*http.Transport)
+		if !ok {
+			panic(fmt.Sprintf("defaultRoundTripper not an *http.Transport"))
+		}
+		defaultTransport := *defaultTransportPointer                      // dereference it to get a copy of the struct that the pointer points to
+		defaultTransport.MaxIdleConns = defaultMaxIdleConns               // 设置连接池的大小为1000个连接
+		defaultTransport.MaxIdleConnsPerHost = defaultMaxIdleConnsPerHost // 默认每个host只存放2个连接，其他连接会被关闭进入TIME_WAIT,并发大就改大点
+		tr = &defaultTransport
 	}
 	return &transport{tr, credentials}
 }

@@ -110,5 +110,7 @@ var (
 
 // http client相关配置
 var (
-	HttpClientTimeout = 5 * time.Second // 默认超时时间
+	HttpClientTimeout             = 5 * time.Second // 默认超时时间
+	HttpClientMaxIdleConns        = 2000            // 设置连接池的大小为1000个连接
+	HttpClientMaxIdleConnsPerHost = 1000            // 默认每个host只存放2个连接，其他连接会被关闭进入TIME_WAIT,并发大就改大点
 )
