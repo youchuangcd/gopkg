@@ -66,7 +66,7 @@ type transport struct {
 
 func newTransport(credentials *auth.Credentials, tr http.RoundTripper) *transport {
 	if tr == nil {
-		tr = http.DefaultTransport
+		tr = gopkg.HttpClientDefaultTransport
 	}
 	return &transport{tr, credentials}
 }
