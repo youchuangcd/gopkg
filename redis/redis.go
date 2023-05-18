@@ -94,7 +94,12 @@ func getPoolInstance(ctx context.Context) *Pool {
 	panic(fmt.Sprintf("无效的redis实例key: %s", mapKey))
 }
 
-func GetPool(ctx context.Context) *Pool {
+// GetPoolInstance
+//
+//	@Description: 获取一个连接池对象
+//	@param ctx
+//	@return *Pool
+func GetPoolInstance(ctx context.Context) *Pool {
 	return getPoolInstance(ctx)
 }
 
