@@ -94,6 +94,10 @@ func getPoolInstance(ctx context.Context) *Pool {
 	panic(fmt.Sprintf("无效的redis实例key: %s", mapKey))
 }
 
+func GetPool(ctx context.Context) *Pool {
+	return getPoolInstance(ctx)
+}
+
 // SwitchRedisByCtx
 //
 //	@Description: 根据上下文切换redis实例
