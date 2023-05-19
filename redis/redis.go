@@ -20,6 +20,7 @@ var (
 
 type Pool struct {
 	*redis.Pool
+	config Config
 }
 
 type Config struct {
@@ -54,6 +55,7 @@ func InitRedis(configs []Config) {
 			nv := v
 			// 建立连接池
 			redisCollections[v.Name] = &Pool{
+				config: nv,
 				Pool: &redis.Pool{
 					MaxIdle:     v.MaxIdle,                                       //最大空闲连接数
 					MaxActive:   v.MaxActive,                                     //最大连接数
@@ -101,6 +103,15 @@ func getPoolInstance(ctx context.Context) *Pool {
 //	@return *Pool
 func GetPoolInstance(ctx context.Context) *Pool {
 	return getPoolInstance(ctx)
+}
+
+// GetConfig
+//
+//	@Description: 获取连接池配置
+//	@receiver p
+//	@return Config
+func (p *Pool) GetConfig() Config {
+	return p.config
 }
 
 // SwitchRedisByCtx
