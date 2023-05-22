@@ -138,4 +138,6 @@ var (
 		TLSHandshakeTimeout:   10 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
 	}
+	HttpClientDebugMode     = true // 是否开启debug模式
+	HttpClientDeepDebugInfo = true
 )

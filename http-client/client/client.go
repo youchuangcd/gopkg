@@ -21,9 +21,9 @@ var (
 	// DefaultClient 默认Client
 	DefaultClient = Client{&http.Client{Transport: http.DefaultTransport}}
 	// DebugMode 用来打印调试信息
-	DebugMode = true
+	DebugMode = gopkg.HttpClientDebugMode
 	// DeepDebugInfo 调试信息
-	DeepDebugInfo      = true
+	DeepDebugInfo      = gopkg.HttpClientDeepDebugInfo
 	insReqStartTimeKey = reqStartTimeKey{}
 	insReqUrlKey       = reqUrlKey{}
 )
@@ -37,11 +37,6 @@ type reqUrlKey struct{}
 type Client struct {
 	*http.Client
 }
-
-// TurnOnDebug 开启Debug模式
-//func TurnOnDebug() {
-//	DebugMode = true
-//}
 
 // WithTraceId 把traceId加入context中
 func WithTraceId(ctx context.Context, traceId string) context.Context {
@@ -67,21 +62,6 @@ func newRequest(ctx context.Context, method, reqUrl string, headers http.Header,
 	req.Header = headers
 	req = req.WithContext(ctx)
 
-	if DebugMode {
-		trace := &httptrace.ClientTrace{
-			//GotConn: func(connInfo httptrace.GotConnInfo) {
-			//	remoteAddr := connInfo.Conn.RemoteAddr()
-			//	mylog.Info(ctx, LogCategoryHttp, fmt.Sprintf("Network: %s, Remote ip:%s, URL: %s", remoteAddr.Network(), remoteAddr.String(), req.URL))
-			//},
-		}
-		req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-		bs, bErr := httputil.DumpRequest(req, DeepDebugInfo)
-		if bErr != nil {
-			err = bErr
-			return
-		}
-		mylog.Info(ctx, gopkg.LogHttp, string(bs))
-	}
 	return
 }
 
@@ -169,6 +149,22 @@ func (r Client) Do(ctx context.Context, req *http.Request) (resp *http.Response,
 
 	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", UserAgent)
+	}
+
+	if DebugMode {
+		trace := &httptrace.ClientTrace{
+			//GotConn: func(connInfo httptrace.GotConnInfo) {
+			//	remoteAddr := connInfo.Conn.RemoteAddr()
+			//	mylog.Info(ctx, LogCategoryHttp, fmt.Sprintf("Network: %s, Remote ip:%s, URL: %s", remoteAddr.Network(), remoteAddr.String(), req.URL))
+			//},
+		}
+		req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+		bs, bErr := httputil.DumpRequest(req, DeepDebugInfo)
+		if bErr != nil {
+			err = bErr
+			return
+		}
+		mylog.Info(ctx, gopkg.LogHttp, string(bs))
 	}
 
 	transport := r.Transport // don't change r.Transport
