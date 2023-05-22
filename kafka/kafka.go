@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/panjf2000/ants/v2"
+	"github.com/youchuangcd/gopkg/common"
 	"strings"
 )
 
@@ -92,13 +93,15 @@ type logger interface {
 	LogError(ctx context.Context, logCategory string, logContent map[string]interface{}, msg string)
 }
 type Kafka struct {
-	callback        func(ctx context.Context, s *sarama.ConsumerMessage) error
-	group           string
-	consumerAddrs   []string
-	producerAddrs   []string
-	syncProducer    sarama.SyncProducer
-	goPool          *ants.Pool // 协程池
-	consumerOffsets int64      // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
+	callback             func(ctx context.Context, s *sarama.ConsumerMessage) error
+	callbackBatchProcess func(ctx context.Context, msgs []*sarama.ConsumerMessage) error
+	aggregator           *common.Aggregator
+	group                string
+	consumerAddrs        []string
+	producerAddrs        []string
+	syncProducer         sarama.SyncProducer
+	goPool               *ants.Pool // 协程池
+	consumerOffsets      int64      // 消费者偏移量类型设置 OffsetNewest or OffsetOldest
 }
 
 type Config struct {
