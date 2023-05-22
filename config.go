@@ -45,16 +45,26 @@ var (
 )
 
 var (
-	RequestLogTypeFlag      = "request"
-	RequestHeaderTraceIdKey = "X-Request-Id"
-	RequestHeaderSpanIdKey  = "X-Request-Span-Id"
-	LogTraceIdKey           = "traceId"
-	LogSpanIdKey            = "spanId"
-	LogParentSpanIdKey      = "parentSpanId"
-	LogUserIdKey            = "userId"
-	LogTaskIdKey            = "taskId"
-	LogMsgIdKey             = "msgId"
-	LogParentMsgIdKey       = "parentMsgId"
+	RequestLogTypeFlag             = "request"
+	RequestHeaderTraceIdKey        = "X-Request-Id"
+	RequestHeaderSpanIdKey         = "X-Request-Span-Id"
+	RequestB3HeaderTraceIdKey      = "X-B3-TraceId"
+	RequestB3HeaderSpanIdKey       = "X-B3-SpanId"
+	RequestB3HeaderParentSpanIdKey = "X-B3-ParentSpanId"
+	RequestB3HeaderSampledKey      = "X-B3-Sampled"
+	RequestB3HeaderFlagsKey        = "X-B3-Flags"
+	RequestB3HeaderKey             = "B3"
+	RequestLightStepKey            = "x-ot-span-context"
+
+	RequestB3Headers = []string{RequestB3HeaderTraceIdKey, RequestB3HeaderSpanIdKey, RequestB3HeaderParentSpanIdKey, RequestB3HeaderSampledKey, RequestB3HeaderFlagsKey, RequestB3HeaderKey, RequestLightStepKey}
+
+	LogTraceIdKey      = "traceId"
+	LogSpanIdKey       = "spanId"
+	LogParentSpanIdKey = "parentSpanId"
+	LogUserIdKey       = "userId"
+	LogTaskIdKey       = "taskId"
+	LogMsgIdKey        = "msgId"
+	LogParentMsgIdKey  = "parentMsgId"
 
 	// 请求来源
 	ContextRequestSourceKey = "X-Request-Source"

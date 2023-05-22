@@ -160,6 +160,13 @@ func (r Client) Do(ctx context.Context, req *http.Request) (resp *http.Response,
 		req.Header.Set(gopkg.RequestHeaderTraceIdKey, traceId)
 	}
 
+	// 追加istio B3 请求头
+	for _, key := range gopkg.RequestB3Headers {
+		if val, ok := ctx.Value(key).(string); ok && val != "" {
+			req.Header.Set(key, val)
+		}
+	}
+
 	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", UserAgent)
 	}

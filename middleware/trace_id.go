@@ -24,5 +24,12 @@ func TraceId(c *gin.Context) {
 	}
 	// Response head
 	c.Header(gopkg.RequestHeaderTraceIdKey, traceId)
+	// 接收istio B3 header
+	for _, key := range gopkg.RequestB3Headers {
+		v := c.Request.Header.Get(key)
+		if v != "" {
+			c.Set(key, v)
+		}
+	}
 	c.Next()
 }

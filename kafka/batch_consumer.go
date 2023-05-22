@@ -33,9 +33,9 @@ func (h batchConsumerGroupHandler) Cleanup(s sarama.ConsumerGroupSession) error 
 	return nil
 }
 func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error { // consume
-	ctx := sess.Context()
+	//ctx := sess.Context()
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
-	//ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
+	ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
 	for msg := range claim.Messages() {
 		select {
 		case <-sess.Context().Done():
