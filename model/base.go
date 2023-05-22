@@ -40,14 +40,14 @@ type GormModelTime struct {
 
 // gorm.Model 的定义
 type GormModelAt struct {
-	ID        uint            `json:"id" gorm:"primaryKey" mapstructure:"id" redis:"id"`
+	ID        uint            `json:"id" gorm:"primaryKey" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
 
 // gorm.Model dws的定义
 type GormModelAtDws struct {
-	ID        uint            `json:"id" mapstructure:"id" redis:"id"`
+	ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
