@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/gogap/errors"
 	"github.com/youchuangcd/gopkg/common"
 	"time"
 )
@@ -16,6 +17,12 @@ type BatchConsumerConfig struct {
 	GoPoolSize        int
 	LingerTime        int64 // 多久处理一次 单位毫秒
 	ConsumerConfig    ConsumerConfig
+}
+
+type batchConsumerMessageExt struct {
+	ctx  context.Context
+	sess sarama.ConsumerGroupSession
+	msg  *sarama.ConsumerMessage
 }
 
 // 消息批量处理handler，核心的消费者业务实现
@@ -42,30 +49,19 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 			break
 		default:
 		}
-		// 丢进内存队列中
-		h.Kafka.aggregator.TryEnqueue(msg)
-		if logConf.Producer {
-			newCtx := ctx
-			// 从消息头部中取traceId 和msgId 写到上下文中
-			for _, v := range msg.Headers {
-				headerKey := string(v.Key)
-				if _, ok := ctxWithMap[headerKey]; ok {
-					newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
-				}
-			}
-			highWaterMarkOffset := claim.HighWaterMarkOffset()
-			logMap := map[string]interface{}{
-				"topic":        msg.Topic,
-				"group":        h.Kafka.group,
-				"partition":    msg.Partition,
-				"offset":       msg.Offset,
-				"maxOffsetSub": highWaterMarkOffset - msg.Offset,
-				"key":          string(msg.Key),
-				"value":        h.cutStrFromLogConfig(string(msg.Value)),
-			}
-			logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[BatchConsumer] Message Success")
+		newMsg := msg
+		msgExt := batchConsumerMessageExt{
+			ctx:  ctx,
+			sess: sess,
+			msg:  newMsg,
 		}
-		sess.MarkMessage(msg, "") // 必须设置这个，不然你的偏移量无法提交。
+		for {
+			// 丢进内存队列中
+			res := h.Kafka.aggregator.TryEnqueue(msgExt)
+			if res {
+				break
+			}
+		}
 	}
 	return nil
 }
@@ -81,6 +77,8 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 		k.consumerOffsets = batchConf.ConsumerConfig.ConsumerOffsets
 	}
 	conf := k.getConfig()
+	// 手动提交消费偏移量
+	conf.Consumer.Offsets.AutoCommit.Enable = false
 	// 没有额外设置地址，取配置地址
 	addrs := k.getConsumerAddr()
 	var err error
@@ -90,7 +88,9 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 	// 创建批处理聚合对象
 	k.aggregator = common.NewAggregator(ctx, k.batchProcess, func(option common.AggregatorOption) common.AggregatorOption {
 		option.BatchSize = batchConf.BatchSize
-		option.Workers = batchConf.GoPoolSize
+		//option.Workers = batchConf.GoPoolSize
+		// 因为偏移量的关系，暂时只支持单协程消费一批消息
+		option.Workers = 1
 		option.LingerTime = time.Duration(batchConf.LingerTime) * time.Millisecond // 多久提交一次 单位毫秒
 		option.Logger = logConf.Logger
 		return option
@@ -135,12 +135,47 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 //	@receiver k
 //	@param items
 //	@return error
-func (k Kafka) batchProcess(ctx context.Context, items []any) error {
+func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	msgs := make([]*sarama.ConsumerMessage, 0, len(items))
 	for _, item := range items {
-		if msg, ok := item.(*sarama.ConsumerMessage); ok {
+		if msgExt, ok := item.(batchConsumerMessageExt); ok {
+			msg := msgExt.msg
 			msgs = append(msgs, msg)
 		}
 	}
-	return k.callbackBatchProcess(ctx, msgs)
+	if len(msgs) == 0 {
+		return errors.New("无效的消息类型")
+	}
+	err = k.callbackBatchProcess(ctx, msgs)
+	if err == nil {
+		for _, item := range items {
+			if msgExt, ok := item.(batchConsumerMessageExt); ok {
+				msg := msgExt.msg
+				if logConf.Producer {
+					newCtx := msgExt.ctx
+					// 从消息头部中取traceId 和msgId 写到上下文中
+					for _, v := range msg.Headers {
+						headerKey := string(v.Key)
+						if _, ok2 := ctxWithMap[headerKey]; ok2 {
+							newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
+						}
+					}
+					logMap := map[string]interface{}{
+						"topic":     msg.Topic,
+						"group":     k.group,
+						"partition": msg.Partition,
+						"offset":    msg.Offset,
+						"key":       string(msg.Key),
+						"value":     k.cutStrFromLogConfig(string(msg.Value)),
+					}
+					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[BatchConsumer] Message Success")
+				}
+			}
+		}
+		lastMsgExt := items[len(items)-1]
+		msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
+		msgExt.sess.MarkMessage(msgExt.msg, "")
+		msgExt.sess.Commit()
+	}
+	return
 }

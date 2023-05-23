@@ -100,7 +100,7 @@ func (agt *Aggregator) TryEnqueue(item any) bool {
 		default:
 			agt.option.Logger.LogWarn(agt.ctx, gopkg.LogCtx, map[string]any{
 				"item": item,
-			}, "[Aggregator] Event queue is still full and %+v is skipped.")
+			}, "[Aggregator] Event queue is still full and is skipped.")
 			return false
 		}
 	}
