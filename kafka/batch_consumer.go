@@ -59,6 +59,8 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 			// 丢进内存队列中
 			res := h.Kafka.aggregator.TryEnqueue(msgExt)
 			if res {
+				// 标记消息偏移量
+				sess.MarkMessage(msg, "")
 				break
 			}
 		}
@@ -148,10 +150,10 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	}
 	err = k.callbackBatchProcess(ctx, msgs)
 	if err == nil {
-		for _, item := range items {
-			if msgExt, ok := item.(batchConsumerMessageExt); ok {
-				msg := msgExt.msg
-				if logConf.Producer {
+		if logConf.Producer {
+			for _, item := range items {
+				if msgExt, ok := item.(batchConsumerMessageExt); ok {
+					msg := msgExt.msg
 					newCtx := msgExt.ctx
 					// 从消息头部中取traceId 和msgId 写到上下文中
 					for _, v := range msg.Headers {
@@ -174,7 +176,6 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 		}
 		lastMsgExt := items[len(items)-1]
 		msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
-		msgExt.sess.MarkMessage(msgExt.msg, "")
 		msgExt.sess.Commit()
 	}
 	return
