@@ -38,9 +38,9 @@ func (h batchConsumerGroupHandler) Cleanup(s sarama.ConsumerGroupSession) error 
 	return nil
 }
 func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error { // consume
-	//ctx := sess.Context()
+	ctx := sess.Context()
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
-	ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
+	//ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
 	for msg := range claim.Messages() {
 		select {
 		case <-sess.Context().Done():
@@ -64,6 +64,62 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 		}
 	}
 	return nil
+}
+
+// batchProcess
+//
+//	@Description: 批处理消息，把any转成ConsumerMessage
+//	@receiver k
+//	@param items
+//	@return error
+func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
+	msgs := make([]*sarama.ConsumerMessage, 0, len(items))
+	for _, item := range items {
+		if msgExt, ok := item.(batchConsumerMessageExt); ok {
+			select {
+			case <-ctx.Done(): // 程序退出
+				return nil
+			case <-msgExt.sess.Context().Done(): // kafka消费者会话退出
+				return nil
+			default:
+			}
+			msgs = append(msgs, msgExt.msg)
+		}
+	}
+	if len(msgs) == 0 {
+		return errors.New("无效的消息类型")
+	}
+	err = k.callbackBatchProcess(ctx, msgs)
+	if err == nil {
+		if logConf.Producer {
+			for _, item := range items {
+				if msgExt, ok := item.(batchConsumerMessageExt); ok {
+					msg := msgExt.msg
+					newCtx := msgExt.ctx
+					// 从消息头部中取traceId 和msgId 写到上下文中
+					for _, v := range msg.Headers {
+						headerKey := string(v.Key)
+						if _, ok2 := ctxWithMap[headerKey]; ok2 {
+							newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
+						}
+					}
+					logMap := map[string]interface{}{
+						"topic":     msg.Topic,
+						"group":     k.group,
+						"partition": msg.Partition,
+						"offset":    msg.Offset,
+						"key":       string(msg.Key),
+						"value":     k.cutStrFromLogConfig(string(msg.Value)),
+					}
+					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[BatchConsumer] Message Success")
+				}
+			}
+		}
+		lastMsgExt := items[len(items)-1]
+		msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
+		msgExt.sess.Commit()
+	}
+	return
 }
 
 // BatchConsumer
@@ -127,54 +183,4 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 			}, "msg consumer failed")
 		}
 	}
-}
-
-// batchProcess
-//
-//	@Description: 批处理，把any转成ConsumerMessage
-//	@receiver k
-//	@param items
-//	@return error
-func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
-	msgs := make([]*sarama.ConsumerMessage, 0, len(items))
-	for _, item := range items {
-		if msgExt, ok := item.(batchConsumerMessageExt); ok {
-			msg := msgExt.msg
-			msgs = append(msgs, msg)
-		}
-	}
-	if len(msgs) == 0 {
-		return errors.New("无效的消息类型")
-	}
-	err = k.callbackBatchProcess(ctx, msgs)
-	if err == nil {
-		if logConf.Producer {
-			for _, item := range items {
-				if msgExt, ok := item.(batchConsumerMessageExt); ok {
-					msg := msgExt.msg
-					newCtx := msgExt.ctx
-					// 从消息头部中取traceId 和msgId 写到上下文中
-					for _, v := range msg.Headers {
-						headerKey := string(v.Key)
-						if _, ok2 := ctxWithMap[headerKey]; ok2 {
-							newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
-						}
-					}
-					logMap := map[string]interface{}{
-						"topic":     msg.Topic,
-						"group":     k.group,
-						"partition": msg.Partition,
-						"offset":    msg.Offset,
-						"key":       string(msg.Key),
-						"value":     k.cutStrFromLogConfig(string(msg.Value)),
-					}
-					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[BatchConsumer] Message Success")
-				}
-			}
-		}
-		lastMsgExt := items[len(items)-1]
-		msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
-		msgExt.sess.Commit()
-	}
-	return
 }
