@@ -35,8 +35,6 @@ func (h batchConsumerGroupHandler) Setup(s sarama.ConsumerGroupSession) error {
 	return nil
 }
 func (h batchConsumerGroupHandler) Cleanup(s sarama.ConsumerGroupSession) error {
-	s.Commit()
-	// end，当这一次消费完毕，会通知，这里最好commit
 	return nil
 }
 func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error { // consume
