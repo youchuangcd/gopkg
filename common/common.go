@@ -257,7 +257,9 @@ func GetKsAvatarTraitCode(avatar string) (traitCode string, err error) {
 			if err == nil {
 				anchorImgArr := strings.Split(string(anchorImgByte), ".")
 				if len(anchorImgArr) > 0 {
-					traitCode = strings.TrimLeft(strings.TrimSpace(anchorImgArr[0]), ";-")
+					// 截取BM之后的
+					_, after, _ := strings.Cut(anchorImgArr[0], "BM")
+					traitCode = "BM" + after
 				}
 			}
 		} else {
