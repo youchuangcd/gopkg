@@ -24,17 +24,17 @@ type Pool struct {
 }
 
 type Config struct {
-	Name           string // 实例名称
-	Host           string
-	Port           int
-	Password       string
-	MaxIdle        int //最大空闲连接数
-	MaxActive      int //最大连接数
-	IdleTimeout    int //空闲连接超时时间 单位：毫秒
-	Database       int // 选择db
-	ConnectTimeout int //连接超时 单位毫秒
-	ReadTimeout    int //读取超时 单位毫秒
-	WriteTimeout   int //写入超时 单位毫秒
+	Name           string `mapstructure:"name"` // 实例名称
+	Host           string `mapstructure:"host"`
+	Port           int    `mapstructure:"port"`
+	Password       string `mapstructure:"password"`
+	MaxIdle        int    `mapstructure:"maxIdle"`        //最大空闲连接数
+	MaxActive      int    `mapstructure:"maxActive"`      //最大连接数
+	IdleTimeout    int    `mapstructure:"idleTimeout"`    //空闲连接超时时间 单位：纳秒
+	Database       int    `mapstructure:"database"`       // 选择db
+	ConnectTimeout int    `mapstructure:"connectTimeout"` //连接超时 单位毫秒
+	ReadTimeout    int    `mapstructure:"readTimeout"`    //读取超时 单位毫秒
+	WriteTimeout   int    `mapstructure:"writeTimeout"`   //写入超时 单位毫秒
 }
 
 func InitRedis(configs []Config) {

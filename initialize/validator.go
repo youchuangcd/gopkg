@@ -1,4 +1,4 @@
-package gopkg
+package initialize
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
+	"github.com/youchuangcd/gopkg"
 	"log"
 	"reflect"
 	"strings"
@@ -17,8 +18,6 @@ import (
 
 var (
 	timeType = reflect.TypeOf(time.Time{})
-	// Validate 验证器 validator.Validate是线程安全的，其变量内会缓存已经验证过结构体的特征，因此用户用一个变量更有利于提高效率
-	Trans ut.Translator
 )
 
 // InitTrans
@@ -49,30 +48,32 @@ func InitTrans(locale string) {
 		// locale 通常取决于 http 请求头的 'Accept-Language'
 		var ok bool
 		// 也可以使用 uni.FindTranslator(...) 传入多个locale进行查找
-		Trans, ok = uni.GetTranslator(locale)
+		gopkg.Trans, ok = uni.GetTranslator(locale)
 		if !ok {
 			log.Panic(fmt.Errorf("uni.GetTranslator(%s) failed", locale))
 		} else {
 			// 注册翻译器
 			switch locale {
 			case "en":
-				err = enTranslations.RegisterDefaultTranslations(v, Trans)
+				err = enTranslations.RegisterDefaultTranslations(v, gopkg.Trans)
 			case "zh":
-				err = zhTranslations.RegisterDefaultTranslations(v, Trans)
+				err = zhTranslations.RegisterDefaultTranslations(v, gopkg.Trans)
 			default:
-				err = enTranslations.RegisterDefaultTranslations(v, Trans)
+				err = enTranslations.RegisterDefaultTranslations(v, gopkg.Trans)
 			}
 			if err != nil {
 				log.Panic(err)
 			}
 		}
 	}
+	// 初始化自定义验证规则
+	validatorFunc()
 }
 
 // ValidatorFunc
 // @Description: 初始化自定义验证规则
 // @return err
-func ValidatorFunc() {
+func validatorFunc() {
 	// 修改gin框架中的Validator引擎属性，实现自定制
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// 时间字符串 "10:20:30" 时分秒
@@ -89,9 +90,9 @@ func validatorFuncTime(fl validator.FieldLevel) bool {
 		//当前时间
 		now := time.Now()
 		//当前时间转换为"年-月-日"的格式
-		format := now.Format(DateFormat)
+		format := now.Format(gopkg.DateFormat)
 		//转换为time类型需要的格式
-		layout := DateTimeFormat
+		layout := gopkg.DateTimeFormat
 		//将开始时间拼接“年-月-日 ”转换为time类型
 		_, err := time.ParseInLocation(layout, format+" "+timeStr, time.Local)
 		if err != nil {
@@ -153,9 +154,9 @@ func gtTimeField(fl validator.FieldLevel, isGteType bool) bool {
 		//当前时间
 		now := time.Now()
 		//当前时间转换为"年-月-日"的格式
-		format := now.Format(DateFormat)
+		format := now.Format(gopkg.DateFormat)
 		//转换为time类型需要的格式
-		layout := DateTimeFormat
+		layout := gopkg.DateTimeFormat
 		//将开始时间拼接“年-月-日 ”转换为time类型
 		timeStart, err := time.ParseInLocation(layout, format+" "+currentTimeStr, time.Local)
 		if err != nil {

@@ -1,4 +1,4 @@
-package gopkg
+package initialize
 
 import (
 	"go.opentelemetry.io/otel/attribute"

@@ -6,6 +6,7 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/gogap/errors"
 	"github.com/youchuangcd/gopkg/common"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
 	"time"
 )
 
@@ -167,8 +168,10 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 		k.aggregator.SafeStop()
 		client.Close()
 	}()
-	handler := batchConsumerGroupHandler{Kafka: k} // 必须传递一个handler
-	for {                                          // for循环的目的是因为存在重平衡，他会重新启动
+	//handler := batchConsumerGroupHandler{Kafka: k} // 必须传递一个handler
+	consumerHandler := batchConsumerGroupHandler{Kafka: k}
+	handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
+	for { // for循环的目的是因为存在重平衡，他会重新启动
 		select {
 		case <-ctx.Done():
 			break
