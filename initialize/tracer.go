@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -37,5 +38,8 @@ func TracerProvider(endpoint, serviceName, env string) (*tracesdk.TracerProvider
 			attribute.String("environment", env),
 		)),
 	)
+	// Register our TracerProvider as the global so any imported
+	// instrumentation in the future will default to using it.
+	otel.SetTracerProvider(tp)
 	return tp, nil
 }
