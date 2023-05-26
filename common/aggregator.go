@@ -203,9 +203,9 @@ func (agt *Aggregator) batchProcess(items []any) {
 	agt.wg.Add(1)
 	defer agt.wg.Done()
 	if err := agt.batchProcessor(agt.ctx, items); err != nil {
-		agt.option.Logger.LogError(agt.ctx, gopkg.LogCtx, map[string]any{
-			"err": err,
-		}, "[Aggregator] error happens")
+		//agt.option.Logger.LogError(agt.ctx, gopkg.LogCtx, map[string]any{
+		//	"err": err,
+		//}, "[Aggregator] error happens")
 		if agt.option.ErrorHandler != nil {
 			go agt.option.ErrorHandler(agt.ctx, err, items, agt.batchProcessor, agt)
 		} else {
@@ -214,8 +214,8 @@ func (agt *Aggregator) batchProcess(items []any) {
 			}, "[Aggregator] error happens in batchProcess and is skipped")
 		}
 	} else {
-		agt.option.Logger.LogInfo(agt.ctx, gopkg.LogCtx, map[string]any{
-			"itemLen": len(items),
-		}, "[Aggregator] items have been sent.")
+		//agt.option.Logger.LogInfo(agt.ctx, gopkg.LogCtx, map[string]any{
+		//	"itemLen": len(items),
+		//}, "[Aggregator] items have been sent.")
 	}
 }

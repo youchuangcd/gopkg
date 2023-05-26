@@ -14,6 +14,7 @@ type BatchConsumerConfig struct {
 	ConsumerGroupName string
 	Callback          func(ctx context.Context, msgs []*sarama.ConsumerMessage) error
 	BatchSize         int // 达到多少条处理一次
+	ChannelBufferSize int // 缓冲通道大小
 	GoPoolSize        int
 	LingerTime        int64 // 多久处理一次 单位毫秒
 	ConsumerConfig    ConsumerConfig
@@ -149,6 +150,7 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 		option.Workers = 1
 		option.LingerTime = time.Duration(batchConf.LingerTime) * time.Millisecond // 多久提交一次 单位毫秒
 		option.Logger = logConf.Logger
+		option.ChannelBufferSize = batchConf.ChannelBufferSize // 设置缓冲通道大小
 		return option
 	})
 
