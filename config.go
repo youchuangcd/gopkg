@@ -56,7 +56,7 @@ var (
 	RequestB3HeaderKey             = "B3"
 	RequestLightStepKey            = "x-ot-span-context"
 
-	RequestB3Headers = []string{RequestB3HeaderTraceIdKey, RequestB3HeaderSpanIdKey, RequestB3HeaderParentSpanIdKey, RequestB3HeaderSampledKey, RequestB3HeaderFlagsKey, RequestB3HeaderKey, RequestLightStepKey}
+	RequestB3Headers = []string{RequestHeaderTraceIdKey, RequestB3HeaderTraceIdKey, RequestB3HeaderSpanIdKey, RequestB3HeaderParentSpanIdKey, RequestB3HeaderSampledKey, RequestB3HeaderFlagsKey, RequestB3HeaderKey, RequestLightStepKey}
 
 	LogTraceIdKey      = "traceId"
 	LogSpanIdKey       = "spanId"

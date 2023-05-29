@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"github.com/Shopify/sarama"
+	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
@@ -19,13 +20,21 @@ import (
 //	@return offset
 //	@return err
 func (k Kafka) Producer(ctx context.Context, topic string, content string) (partition int32, offset int64, err error) {
-	headers := make([]sarama.RecordHeader, 0, 2)
-	if traceId, ok := ctx.Value(ctxTraceIdKey).(string); ok {
-		headers = append(headers, sarama.RecordHeader{
-			Key:   []byte(ctxTraceIdKey),
-			Value: []byte(traceId),
-		})
+	//headers := make([]sarama.RecordHeader, 0, len(gopkg.RequestB3Headers)+1)
+	headers := make([]sarama.RecordHeader, 0, 1)
+	// http请求的话，要提取request里面的上下文才可以获取到b3请求头
+	if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+		ctx = ginCtx.Request.Context()
 	}
+	//// 追加istio B3 请求头
+	//for _, key := range gopkg.RequestB3Headers {
+	//	if val, ok := ctx.Value(key).(string); ok && val != "" {
+	//		headers = append(headers, sarama.RecordHeader{
+	//			Key:   []byte(key),
+	//			Value: []byte(val),
+	//		})
+	//	}
+	//}
 	// 生成每条消息的id
 	headers = append(headers, sarama.RecordHeader{
 		Key:   []byte(ctxMsgIdKey),
@@ -45,11 +54,9 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 	otel.GetTextMapPropagator().Inject(ctx, otelsarama.NewProducerMessageCarrier(msg))
 	// 发送消息
 	partition, offset, err = k.syncProducer.SendMessage(msg)
-	//content = k.cutStrFromLogConfig(content)
 	if err != nil {
 		// 标记span状态
 		span.SetStatus(codes.Error, err.Error())
-		//content = k.cutStrFromLogConfig(content)
 		logConf.Logger.LogError(ctx, logConf.Category, map[string]interface{}{
 			"err":     err,
 			"topic":   topic,
@@ -79,19 +86,17 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 //	@return err
 func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []string) (err error) {
 	msgs := make([]*sarama.ProducerMessage, 0, len(contents))
-	traceId, _ := ctx.Value(ctxTraceIdKey).(string)
+	// http请求的话，要提取request里面的上下文才可以获取到b3请求头
+	if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+		ctx = ginCtx.Request.Context()
+	}
 	// Create root span
-	tr := otel.Tracer("producer")
+	tr := otel.Tracer("producer batch")
 	ctx, span := tr.Start(ctx, "produce batch message")
 	defer span.End()
 	for _, content := range contents {
-		headers := make([]sarama.RecordHeader, 0, 2)
-		if traceId != "" {
-			headers = append(headers, sarama.RecordHeader{
-				Key:   []byte(ctxTraceIdKey),
-				Value: []byte(traceId),
-			})
-		}
+		//headers := make([]sarama.RecordHeader, 0, len(gopkg.RequestB3Headers)+1)
+		headers := make([]sarama.RecordHeader, 0, 1)
 		// 生成每条消息的id
 		headers = append(headers, sarama.RecordHeader{
 			Key:   []byte(ctxMsgIdKey),

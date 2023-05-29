@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/mylog"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"io"
 	"net/http"
 	"net/http/httptrace"
@@ -140,17 +143,16 @@ func (r Client) Do(ctx context.Context, req *http.Request) (resp *http.Response,
 		req.Header.Set(gopkg.RequestHeaderTraceIdKey, traceId)
 	}
 
-	// 追加istio B3 请求头
-	for _, key := range gopkg.RequestB3Headers {
-		if val, ok := ctx.Value(key).(string); ok && val != "" {
-			req.Header.Set(key, val)
-		}
-	}
-
 	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", UserAgent)
 	}
-
+	var newCtx = ctx
+	// http请求的话，要提取request里面的上下文才可以获取到b3请求头
+	if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+		newCtx = ginCtx.Request.Context()
+	}
+	// 把上游传递过来的追踪参数从上下文中提取出来注入到请求中
+	otel.GetTextMapPropagator().Inject(newCtx, propagation.HeaderCarrier(req.Header))
 	if DebugMode {
 		trace := &httptrace.ClientTrace{
 			//GotConn: func(connInfo httptrace.GotConnInfo) {

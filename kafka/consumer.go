@@ -98,9 +98,9 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 		highWaterMarkOffset := claim.HighWaterMarkOffset()
 		_err := h.goPool.Submit(func() {
 			// Extract tracing info from message
-			newCtx = otel.GetTextMapPropagator().Extract(newCtx, otelsarama.NewConsumerMessageCarrier(msg))
+			newCtx = otel.GetTextMapPropagator().Extract(newCtx, otelsarama.NewConsumerMessageCarrier(tmpMsg))
 
-			_, span := otel.Tracer("consumer").Start(ctx, "consume message", trace.WithAttributes(
+			_, span := otel.Tracer("consumer").Start(newCtx, "consume message", trace.WithAttributes(
 				semconv.MessagingOperationProcess,
 			))
 			defer span.End()

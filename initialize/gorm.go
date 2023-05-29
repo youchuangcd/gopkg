@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"github.com/youchuangcd/gopkg/mylog"
+	"go.opentelemetry.io/otel/attribute"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -81,7 +82,11 @@ func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
 			sqlDB.SetConnMaxLifetime(time.Duration(v.MaxLifetime) * time.Second)
 		}
 		// 设置分布式追踪插件失败
-		if err = db.Use(otelgorm.NewPlugin(otelgorm.WithDBName(v.Name))); err != nil {
+		if err = db.Use(otelgorm.NewPlugin(otelgorm.WithDBName(v.Name), otelgorm.WithoutMetrics(), otelgorm.WithAttributes(
+			attribute.Int("MaxOpen", v.MaxOpen),
+			attribute.Int("MaxIdle", v.MaxIdle),
+			attribute.Int("MaxLifetime", v.MaxLifetime),
+		))); err != nil {
 			panic(fmt.Sprintf("设置%s数据库%sDB追踪插件失败，原因：%s", v.Driver, v.Name, err.Error()))
 		}
 		gormDBMap[v.Name] = db
