@@ -61,6 +61,6 @@ func TracerProvider(endpoint, serviceName, env string, simplerRatioServiceMap ma
 	// Register our TracerProvider as the global so any imported
 	// instrumentation in the future will default to using it.
 	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader))))
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader))))
 	return tp, nil
 }

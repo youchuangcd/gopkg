@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/panjf2000/ants/v2"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
-	"go.opentelemetry.io/otel"
-	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
-	"go.opentelemetry.io/otel/trace"
 )
 
 func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName string, cb func(ctx context.Context, s *sarama.ConsumerMessage) error, goPoolSize int, args ...interface{}) {
@@ -41,10 +37,10 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 		panic(fmt.Sprintf("创建消费者分组失败, topics: %v, err: %s", topics, err.Error()))
 	}
 	defer client.Close()
-	//handler := consumerGroupHandler{Kafka: k} // 必须传递一个handler
+	handler := consumerGroupHandler{Kafka: k} // 必须传递一个handler
 	// 使用链路追踪消费者
-	consumerHandler := consumerGroupHandler{Kafka: k}
-	handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
+	//consumerHandler := consumerGroupHandler{Kafka: k}
+	//handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
 	for { // for循环的目的是因为存在重平衡，他会重新启动
 		select {
 		case <-ctx.Done():
@@ -98,12 +94,12 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 		highWaterMarkOffset := claim.HighWaterMarkOffset()
 		_err := h.goPool.Submit(func() {
 			// Extract tracing info from message
-			newCtx = otel.GetTextMapPropagator().Extract(newCtx, otelsarama.NewConsumerMessageCarrier(tmpMsg))
-
-			_, span := otel.Tracer("consumer").Start(newCtx, "consume message", trace.WithAttributes(
-				semconv.MessagingOperationProcess,
-			))
-			defer span.End()
+			//newCtx = otel.GetTextMapPropagator().Extract(newCtx, otelsarama.NewConsumerMessageCarrier(tmpMsg))
+			//
+			//_, span := otel.Tracer("consumer").Start(newCtx, "consume message", trace.WithAttributes(
+			//	semconv.MessagingOperationProcess,
+			//))
+			//defer span.End()
 			// 业务逻辑处理
 			err := h.callback(newCtx, tmpMsg)
 			if logConf.Producer || err != nil {

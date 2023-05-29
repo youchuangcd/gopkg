@@ -5,7 +5,6 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/panjf2000/ants/v2"
 	"github.com/youchuangcd/gopkg/common"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
 	"strings"
 )
 
@@ -129,7 +128,7 @@ func New(conf Config) Kafka {
 		panic("NewSyncProducer failed: " + err.Error())
 	}
 	// Wrap instrumentation
-	syncProducer = otelsarama.WrapSyncProducer(kConf, syncProducer)
+	//syncProducer = otelsarama.WrapSyncProducer(kConf, syncProducer)
 	k.syncProducer = syncProducer
 	return k
 }
