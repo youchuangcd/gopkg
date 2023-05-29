@@ -105,35 +105,43 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	//	}
 	//}()
 	err = k.callbackBatchProcess(ctx, msgs)
-	if err == nil {
-		if logConf.Producer {
-			for _, item := range items {
-				if msgExt, ok := item.(batchConsumerMessageExt); ok {
-					msg := msgExt.msg
-					newCtx := msgExt.ctx
-					// 从消息头部中取traceId 和msgId 写到上下文中
-					for _, v := range msg.Headers {
-						headerKey := string(v.Key)
-						if _, ok2 := ctxWithMap[headerKey]; ok2 {
-							newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
-						}
+	if logConf.Producer {
+		recordLogFunc := logConf.Logger.LogInfo
+		logMsg := "[BatchConsumer] Message Success"
+		if err != nil {
+			recordLogFunc = logConf.Logger.LogError
+			logMsg = "[BatchConsumer] Message Failed"
+		}
+		for _, item := range items {
+			if msgExt, ok := item.(batchConsumerMessageExt); ok {
+				msg := msgExt.msg
+				newCtx := msgExt.ctx
+				// 从消息头部中取traceId 和msgId 写到上下文中
+				for _, v := range msg.Headers {
+					headerKey := string(v.Key)
+					if _, ok2 := ctxWithMap[headerKey]; ok2 {
+						newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
 					}
-					logMap := map[string]interface{}{
-						"topic":     msg.Topic,
-						"group":     k.group,
-						"partition": msg.Partition,
-						"offset":    msg.Offset,
-						"key":       string(msg.Key),
-						"value":     k.cutStrFromLogConfig(string(msg.Value)),
-					}
-					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[BatchConsumer] Message Success")
 				}
+				logMap := map[string]interface{}{
+					"topic":     msg.Topic,
+					"group":     k.group,
+					"partition": msg.Partition,
+					"offset":    msg.Offset,
+					"key":       string(msg.Key),
+					"value":     k.cutStrFromLogConfig(string(msg.Value)),
+				}
+				logMap["err"] = err
+				logMap["address"] = k.consumerAddrs
+				recordLogFunc(newCtx, logConf.Category, logMap, logMsg)
 			}
 		}
-		lastMsgExt := items[len(items)-1]
-		msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
-		msgExt.sess.Commit()
 	}
+	//if err == nil {
+	//lastMsgExt := items[len(items)-1]
+	//msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
+	//msgExt.sess.Commit()
+	//}
 	return
 }
 
@@ -149,7 +157,7 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 	}
 	conf := k.getConfig()
 	// 手动提交消费偏移量
-	conf.Consumer.Offsets.AutoCommit.Enable = false
+	conf.Consumer.Offsets.AutoCommit.Enable = true
 	// 没有额外设置地址，取配置地址
 	addrs := k.getConsumerAddr()
 	var err error
@@ -159,9 +167,7 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 	// 创建批处理聚合对象
 	k.aggregator = common.NewAggregator(ctx, k.batchProcess, func(option common.AggregatorOption) common.AggregatorOption {
 		option.BatchSize = batchConf.BatchSize
-		//option.Workers = batchConf.GoPoolSize
-		// 因为偏移量的关系，暂时只支持单协程消费一批消息
-		option.Workers = 1
+		option.Workers = batchConf.GoPoolSize
 		option.LingerTime = time.Duration(batchConf.LingerTime) * time.Millisecond // 多久提交一次 单位毫秒
 		option.Logger = logConf.Logger
 		option.ChannelBufferSize = batchConf.ChannelBufferSize // 设置缓冲通道大小
