@@ -47,8 +47,7 @@ type GormModelAt struct {
 
 // gorm.Model dws的定义
 type GormModelAtDws struct {
-	// 移除returning id
-	//ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
+	ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
