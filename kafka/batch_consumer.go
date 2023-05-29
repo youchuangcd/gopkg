@@ -75,6 +75,7 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 //	@return error
 func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	msgs := make([]*sarama.ConsumerMessage, 0, len(items))
+	//spanSlice := make([]trace.Span, 0, len(items))
 	for _, item := range items {
 		if msgExt, ok := item.(batchConsumerMessageExt); ok {
 			select {
@@ -85,11 +86,24 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 			default:
 			}
 			msgs = append(msgs, msgExt.msg)
+			// Extract tracing info from message
+			//newCtx := otel.GetTextMapPropagator().Extract(ctx, otelsarama.NewConsumerMessageCarrier(msgExt.msg))
+			//
+			//_, span := otel.Tracer("consumer").Start(newCtx, "consume batch message", trace.WithAttributes(
+			//	semconv.MessagingOperationProcess,
+			//))
+			//spanSlice = append(spanSlice, span)
 		}
 	}
 	if len(msgs) == 0 {
 		return errors.New("无效的消息类型")
 	}
+
+	//defer func() {
+	//	for _, span := range spanSlice {
+	//		span.End()
+	//	}
+	//}()
 	err = k.callbackBatchProcess(ctx, msgs)
 	if err == nil {
 		if logConf.Producer {
@@ -170,7 +184,9 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 		client.Close()
 	}()
 	handler := batchConsumerGroupHandler{Kafka: k} // 必须传递一个handler
-	for {                                          // for循环的目的是因为存在重平衡，他会重新启动
+	//consumerHandler := batchConsumerGroupHandler{Kafka: k}
+	//handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
+	for { // for循环的目的是因为存在重平衡，他会重新启动
 		select {
 		case <-ctx.Done():
 			break
