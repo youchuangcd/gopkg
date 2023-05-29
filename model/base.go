@@ -48,14 +48,8 @@ type GormModelAt struct {
 
 // gorm.Model dws的定义
 type GormModelAtDws struct {
-	ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
-	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
-	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
-}
-
-// gorm.Model dws的定义; 自增序列号，没有ID; GORM 默认ID为主键; 由于我们会把postgres驱动关闭returning id特性，所以如果ID为主键，插入时会获取插入id就会有问题
-type GormModelAtDwsSerialNo struct {
-	SerialNo  uint            `json:"serial_no" gorm:"autoIncrement:true" redis:"serial_no"` // 自增序列号，没有ID; GORM 默认ID为主键
+	// 移除returning id
+	//ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
