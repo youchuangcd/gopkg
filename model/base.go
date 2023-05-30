@@ -5,7 +5,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/youchuangcd/gopkg"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -89,9 +88,9 @@ func GetDB(ctx context.Context, tx *gorm.DB, args ...interface{}) (db *gorm.DB) 
 		}
 		newCtx := ctx
 		// http请求的话，要提取request里面的上下文才可以获取到b3请求头
-		if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
-			newCtx = ginCtx.Request.Context()
-		}
+		//if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+		//	newCtx = ginCtx.Request.Context()
+		//}
 		db = gopkg.GormDBMap[gormDBMapKey].WithContext(newCtx)
 	}
 	return
