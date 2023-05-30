@@ -3,7 +3,6 @@ package kafka
 import (
 	"context"
 	"github.com/Shopify/sarama"
-	"github.com/gin-gonic/gin"
 	"github.com/youchuangcd/gopkg"
 )
 
@@ -21,9 +20,9 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 	headers := make([]sarama.RecordHeader, 0, len(gopkg.RequestB3Headers)+1)
 	//headers := make([]sarama.RecordHeader, 0, 1)
 	// http请求的话，要提取request里面的上下文才可以获取到b3请求头
-	if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
-		ctx = ginCtx.Request.Context()
-	}
+	//if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+	//	ctx = ginCtx.Request.Context()
+	//}
 	// 追加istio B3 请求头
 	for _, key := range gopkg.RequestB3Headers {
 		if val, ok := ctx.Value(key).(string); ok && val != "" {
@@ -85,9 +84,9 @@ func (k Kafka) Producer(ctx context.Context, topic string, content string) (part
 func (k Kafka) SyncProducerBatch(ctx context.Context, topic string, contents []string) (err error) {
 	msgs := make([]*sarama.ProducerMessage, 0, len(contents))
 	// http请求的话，要提取request里面的上下文才可以获取到b3请求头
-	if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
-		ctx = ginCtx.Request.Context()
-	}
+	//if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+	//	ctx = ginCtx.Request.Context()
+	//}
 	// Create root span
 	//tr := otel.Tracer("producer batch")
 	//ctx, span := tr.Start(ctx, "produce batch message")
