@@ -74,6 +74,14 @@ func SetLogProducer(v bool) {
 	logConf.Producer = v
 }
 
+// SetLogConsumer
+//
+//	@Description: 设置是否记录消费者日志
+//	@param v
+func SetLogConsumer(v bool) {
+	logConf.Consumer = v
+}
+
 // 公共的日志配置
 type LogConfig struct {
 	Category              string
@@ -83,6 +91,7 @@ type LogConfig struct {
 	PanicHandler          func(r interface{})
 	GoroutinePanicHandler func(r interface{})
 	Producer              bool // 推送日志开启
+	Consumer              bool // 消费日志开启
 }
 
 type logger interface {

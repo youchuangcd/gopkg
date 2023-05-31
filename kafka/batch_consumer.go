@@ -99,43 +99,33 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	//	}
 	//}()
 	err = k.callbackBatchProcess(ctx, msgs)
-	if logConf.Producer {
-		recordLogFunc := logConf.Logger.LogInfo
+	if err != nil || logConf.Consumer {
 		logMsg := "[BatchConsumer] Message Success"
-		if err != nil {
-			recordLogFunc = logConf.Logger.LogError
-			logMsg = "[BatchConsumer] Message Failed"
-		}
-		for _, item := range items {
-			if msgExt, ok := item.(batchConsumerMessageExt); ok {
-				msg := msgExt.msg
-				newCtx := msgExt.ctx
-				// 从消息头部中取traceId 和msgId 写到上下文中
-				for _, v := range msg.Headers {
-					headerKey := string(v.Key)
-					if _, ok2 := ctxWithMap[headerKey]; ok2 {
-						newCtx = context.WithValue(newCtx, headerKey, string(v.Value))
-					}
-				}
-				logMap := map[string]interface{}{
-					"topic":     msg.Topic,
-					"group":     k.group,
-					"partition": msg.Partition,
-					"offset":    msg.Offset,
-					"key":       string(msg.Key),
-					"value":     k.cutStrFromLogConfig(string(msg.Value)),
-				}
-				logMap["err"] = err
-				logMap["address"] = k.consumerAddrs
-				recordLogFunc(newCtx, logConf.Category, logMap, logMsg)
+		msg := msgs[len(msgs)-1]
+		logFunc := logConf.Logger.LogInfo
+		// 从消息头部中取traceId 和msgId 写到上下文中
+		for _, v := range msg.Headers {
+			headerKey := string(v.Key)
+			if _, ok2 := ctxWithMap[headerKey]; ok2 {
+				ctx = context.WithValue(ctx, headerKey, string(v.Value))
 			}
 		}
+		logMap := map[string]any{
+			"topic":     msg.Topic,
+			"group":     k.group,
+			"partition": msg.Partition,
+			"offset":    msg.Offset,
+			"key":       string(msg.Key),
+			"value":     k.cutStrFromLogConfig(string(msg.Value)),
+		}
+		if err != nil {
+			logMsg = "[BatchConsumer] Message Failed"
+			logMap["err"] = err
+			logMap["address"] = k.consumerAddrs
+			logFunc = logConf.Logger.LogError
+		}
+		logFunc(ctx, logConf.Category, logMap, logMsg)
 	}
-	//if err == nil {
-	//lastMsgExt := items[len(items)-1]
-	//msgExt, _ := lastMsgExt.(batchConsumerMessageExt)
-	//msgExt.sess.Commit()
-	//}
 	return
 }
 

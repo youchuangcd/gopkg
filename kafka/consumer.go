@@ -102,7 +102,9 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 			//defer span.End()
 			// 业务逻辑处理
 			err := h.callback(newCtx, tmpMsg)
-			if logConf.Producer || err != nil {
+			if err != nil || logConf.Consumer {
+				logMsg := "[Consumer] Message Success"
+				logFunc := logConf.Logger.LogInfo
 				logMap := map[string]interface{}{
 					"topic":        tmpMsg.Topic,
 					"group":        h.Kafka.group,
@@ -113,13 +115,13 @@ func (h consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 					"value":        h.cutStrFromLogConfig(string(tmpMsg.Value)),
 				}
 				if err != nil {
+					logMsg = "[Consumer] Message Failed"
 					logMap["err"] = err
 					logMap["address"] = h.consumerAddrs
-					logConf.Logger.LogError(newCtx, logConf.Category, logMap, "[Consumer] Message Failed")
+					logFunc = logConf.Logger.LogError
 					// 扔到重试队列或死信队列
-				} else if logConf.Producer {
-					logConf.Logger.LogInfo(newCtx, logConf.Category, logMap, "[Consumer] Message Success")
 				}
+				logFunc(newCtx, logConf.Category, logMap, logMsg)
 			}
 		})
 		if _err != nil {
