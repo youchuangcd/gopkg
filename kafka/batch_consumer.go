@@ -48,21 +48,15 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 			break
 		default:
 		}
-		newMsg := msg
 		msgExt := batchConsumerMessageExt{
 			ctx:  ctx,
 			sess: sess,
-			msg:  newMsg,
+			msg:  msg,
 		}
-		for {
-			// 丢进内存队列中
-			res := h.Kafka.aggregator.TryEnqueue(msgExt)
-			if res {
-				// 标记消息偏移量
-				sess.MarkMessage(msg, "")
-				break
-			}
-		}
+		// 丢进内存队列中
+		h.Kafka.aggregator.Enqueue(msgExt)
+		// 标记消息偏移量
+		sess.MarkMessage(msg, "")
 	}
 	return nil
 }
