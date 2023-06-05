@@ -6,6 +6,7 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/panjf2000/ants/v2"
 	"github.com/youchuangcd/gopkg"
+	"github.com/youchuangcd/gopkg/common"
 )
 
 func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName string, cb func(ctx context.Context, s *sarama.ConsumerMessage) error, goPoolSize int, args ...interface{}) {
@@ -27,8 +28,8 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 	if consumerGroupName == "" && k.group != "" {
 		consumerGroupName = k.group
 	}
-	if gopkg.Env == gopkg.EnvDev { // 开发环境会追加环境变量，与其他环境隔开
-		consumerGroupName += "_" + gopkg.Env
+	if common.EnvLocal() || common.EnvDev() { // 开发环境会追加环境变量，与其他环境隔开
+		consumerGroupName += "_" + gopkg.EnvDev
 	}
 	k.group = consumerGroupName
 	client, err := sarama.NewConsumerGroup(addrs, consumerGroupName, conf)
