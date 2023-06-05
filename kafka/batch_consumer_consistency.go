@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common"
 	"time"
 )
@@ -24,8 +25,8 @@ func (k Kafka) BatchConsumerConsistency(ctx context.Context, batchConf BatchCons
 	conf.Consumer.Offsets.AutoCommit.Enable = false
 	// 没有额外设置地址，取配置地址
 	addrs := k.getConsumerAddr()
-	if isDevEnv { // 开发环境会追加环境变量，与其他环境隔开
-		batchConf.ConsumerGroupName += "_" + systemEnv
+	if gopkg.Env == gopkg.EnvDev { // 开发环境会追加环境变量，与其他环境隔开
+		batchConf.ConsumerGroupName += "_" + gopkg.Env
 	}
 	var err error
 	k.group = batchConf.ConsumerGroupName
