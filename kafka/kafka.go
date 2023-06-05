@@ -19,6 +19,8 @@ var (
 	// 生成唯一id的方法
 	genUniqIdFunc func() string
 	kafkaClientId string
+	isDevEnv      bool   // 是否是开发环境
+	systemEnv     string // 当前环境变量
 )
 
 // Init
@@ -29,7 +31,7 @@ var (
 //	@param traceIdKey 上下文中traceId 的key
 //	@param msgIdKey
 //	@param genUniqIdHandler
-func Init(clientId string, conf LogConfig, traceIdKey, msgIdKey string, genUniqIdHandler func() string) {
+func Init(clientId string, conf LogConfig, traceIdKey, msgIdKey string, genUniqIdHandler func() string, isDev bool, env string) {
 	kafkaClientId = clientId
 	logConf = conf
 	ctxTraceIdKey = traceIdKey
@@ -38,6 +40,8 @@ func Init(clientId string, conf LogConfig, traceIdKey, msgIdKey string, genUniqI
 	ctxWithMap[ctxTraceIdKey] = struct{}{}
 	ctxWithMap[ctxMsgIdKey] = struct{}{}
 	genUniqIdFunc = genUniqIdHandler
+	isDevEnv = isDev
+	systemEnv = env
 }
 
 // SetLogConfig

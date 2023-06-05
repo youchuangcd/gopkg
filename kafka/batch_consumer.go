@@ -145,6 +145,9 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 	// 没有额外设置地址，取配置地址
 	addrs := k.getConsumerAddr()
 	var err error
+	if isDevEnv { // 开发环境会追加环境变量，与其他环境隔开
+		batchConf.ConsumerGroupName += "_" + systemEnv
+	}
 	k.group = batchConf.ConsumerGroupName
 	// k.batchProcess里面用到
 	k.callbackBatchProcess = batchConf.Callback

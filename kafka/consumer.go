@@ -26,6 +26,9 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 	if consumerGroupName == "" && k.group != "" {
 		consumerGroupName = k.group
 	}
+	if isDevEnv { // 开发环境会追加环境变量，与其他环境隔开
+		consumerGroupName += "_" + systemEnv
+	}
 	k.group = consumerGroupName
 	client, err := sarama.NewConsumerGroup(addrs, consumerGroupName, conf)
 	if err != nil {
