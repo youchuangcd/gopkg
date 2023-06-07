@@ -12,12 +12,12 @@ import (
 )
 
 type DBConfigItem struct {
-	Driver      string `mapstructure:"driver"`
-	Name        string `mapstructure:"name"`
-	Dsn         string `mapstructure:"dsn"`
-	MaxIdle     int    `mapstructure:"maxIdle"`     //空闲连接池中连接的最大数量
-	MaxOpen     int    `mapstructure:"maxOpen"`     //打开数据库连接的最大数量
-	MaxLifetime int    `mapstructure:"maxLifetime"` //连接可复用的最大时间 单位：秒
+	Driver      string `mapstructure:"driver" yaml:"driver"`
+	Name        string `mapstructure:"name" yaml:"name"`
+	Dsn         string `mapstructure:"dsn" yaml:"dsn"`
+	MaxIdle     int    `mapstructure:"maxIdle" yaml:"maxIdle"`         //空闲连接池中连接的最大数量
+	MaxOpen     int    `mapstructure:"maxOpen" yaml:"maxOpen"`         //打开数据库连接的最大数量
+	MaxLifetime int    `mapstructure:"maxLifetime" yaml:"maxLifetime"` //连接可复用的最大时间 单位：秒
 }
 
 func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
