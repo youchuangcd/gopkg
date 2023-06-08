@@ -181,7 +181,7 @@ func (p *Nacos) getCacheConfig(group, dataId string) (content string, err error)
 	cacheDir := p.config.RootPath + string(os.PathSeparator) + "config"
 	content, err = cache.ReadConfigFromFile(cacheKey, cacheDir)
 	if err != nil {
-		mylog.WithError(nil, LogCategory, map[string]any{
+		mylog.WithWarn(nil, LogCategory, map[string]any{
 			"err":      err,
 			"dataId":   dataId,
 			"group":    group,
