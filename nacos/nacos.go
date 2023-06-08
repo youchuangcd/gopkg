@@ -181,12 +181,13 @@ func (p *Nacos) getCacheConfig(group, dataId string) (content string, err error)
 	cacheDir := p.config.RootPath + string(os.PathSeparator) + "config"
 	content, err = cache.ReadConfigFromFile(cacheKey, cacheDir)
 	if err != nil {
-		panic(fmt.Sprintf("读取本地nacos缓存出错: dataId: %s; group: %s; cacheDir: %s", dataId, group, cacheDir))
+		mylog.WithError(nil, LogCategory, map[string]any{
+			"err":      err,
+			"dataId":   dataId,
+			"group":    group,
+			"cacheDir": cacheDir,
+		}, "读取本地nacos缓存出错")
 	}
-	if p.Callback == nil {
-		p.Callback = p.DefaultCallback
-	}
-	_ = p.Callback(p.config.UnmarshalMap, group, dataId, content)
 	return
 }
 
@@ -194,12 +195,14 @@ func (p *Nacos) getCacheConfig(group, dataId string) (content string, err error)
 func (p *Nacos) GetConfig(group, dataId string) (content string, err error) {
 	// 如果使用缓存配置，就直接读取缓存文件内容反序列化
 	if p.config.IsUseCacheConfig {
-		return p.getCacheConfig(group, dataId)
+		content, err = p.getCacheConfig(group, dataId)
 	}
-	content, err = p.client.GetConfig(vo.ConfigParam{
-		DataId: dataId,
-		Group:  group,
-	})
+	if content == "" {
+		content, err = p.client.GetConfig(vo.ConfigParam{
+			DataId: dataId,
+			Group:  group,
+		})
+	}
 	if err != nil {
 		mylog.WithError(nil, LogCategory, map[string]any{
 			"err":    err,
@@ -213,6 +216,10 @@ func (p *Nacos) GetConfig(group, dataId string) (content string, err error) {
 		p.Callback = p.DefaultCallback
 	}
 	_ = p.Callback(p.config.UnmarshalMap, group, dataId, content)
+	// 如果是使用本地缓存，就不监听nacos服务端变更
+	if p.config.IsUseCacheConfig {
+		return
+	}
 	// 增加监听配置是否变化
 	p.client.ListenConfig(vo.ConfigParam{
 		DataId: dataId,
