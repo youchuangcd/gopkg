@@ -94,7 +94,7 @@ type Config struct {
 	Username         string
 	Password         string
 	UnmarshalMap     map[string]UnmarshalMapValue
-	CacheDir         string // nacos缓存目录
+	RootPath         string // 代码根路径
 	IsUseCacheConfig bool   // 是否使用本地缓存配置内容
 }
 type UnmarshalMapValue struct {
@@ -139,19 +139,19 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 		//ContextPath: p.config.ContextPath,
 		//Scheme: p.config.Scheme,
 	}}
-	if p.config.CacheDir == "" {
+	if p.config.RootPath == "" {
 		currentDir, _ := os.Getwd()
 		if currentDir == "/" {
 			currentDir = ""
 		}
-		p.config.CacheDir = currentDir
+		p.config.RootPath = currentDir
 	}
 	cc := constant.ClientConfig{
 		NamespaceId:         p.config.NamespaceId,
 		TimeoutMs:           5 * 1000,
 		ListenInterval:      30 * 1000,
 		NotLoadCacheAtStart: true,
-		CacheDir:            p.config.CacheDir,  //默认会把缓存下来的文件写入 currentDir/config
+		CacheDir:            p.config.RootPath,  //默认会把缓存下来的文件写入 currentDir/config
 		AccessKey:           p.config.AccessKey, // ACM&KMS的AccessKey，用于配置中心的鉴权
 		SecretKey:           p.config.SecretKey,
 		Username:            p.config.Username,
@@ -178,10 +178,10 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 //	@return err
 func (p *Nacos) getCacheConfig(group, dataId string) (content string, err error) {
 	cacheKey := util.GetConfigCacheKey(dataId, group, p.config.NamespaceId)
-	cacheDir := p.config.CacheDir + string(os.PathSeparator) + "config"
+	cacheDir := p.config.RootPath + string(os.PathSeparator) + "config"
 	content, err = cache.ReadConfigFromFile(cacheKey, cacheDir)
 	if err != nil {
-		panic(fmt.Sprintf("读取本地nacos缓存出错: dataId: %s; group: %s; cacheDir: %s", dataId, group, p.config.CacheDir))
+		panic(fmt.Sprintf("读取本地nacos缓存出错: dataId: %s; group: %s; cacheDir: %s", dataId, group, cacheDir))
 	}
 	if p.Callback == nil {
 		p.Callback = p.DefaultCallback
