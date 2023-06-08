@@ -13,14 +13,13 @@ import (
 )
 
 type DBConfigItem struct {
-	Driver      string `mapstructure:"driver" yaml:"driver"`
-	Name        string `mapstructure:"name" yaml:"name"`
-	Dsn         string `mapstructure:"dsn" yaml:"dsn"`
-	MaxIdle     int    `mapstructure:"maxIdle" yaml:"maxIdle"`         //空闲连接池中连接的最大数量
-	MaxOpen     int    `mapstructure:"maxOpen" yaml:"maxOpen"`         //打开数据库连接的最大数量
-	MaxLifetime int    `mapstructure:"maxLifetime" yaml:"maxLifetime"` //连接可复用的最大时间 单位：秒
-	SchemaName  string `mapstructure:"schemaName" yaml:"schemaName"`   // 模式名
-	//TableNamePrefix string `mapstructure:"tableNamePrefix" yaml:"tableNamePrefix"` // 表名前缀
+	Driver          string `mapstructure:"driver" yaml:"driver"`
+	Name            string `mapstructure:"name" yaml:"name"`
+	Dsn             string `mapstructure:"dsn" yaml:"dsn"`
+	MaxIdle         int    `mapstructure:"maxIdle" yaml:"maxIdle"`                 //空闲连接池中连接的最大数量
+	MaxOpen         int    `mapstructure:"maxOpen" yaml:"maxOpen"`                 //打开数据库连接的最大数量
+	MaxLifetime     int    `mapstructure:"maxLifetime" yaml:"maxLifetime"`         //连接可复用的最大时间 单位：秒
+	TableNamePrefix string `mapstructure:"tableNamePrefix" yaml:"tableNamePrefix"` // 表名前缀
 }
 
 func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
@@ -63,8 +62,8 @@ func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
 		}
 		db, err := gorm.Open(dialector, &gorm.Config{
 			NamingStrategy: schema.NamingStrategy{
-				TablePrefix:   v.SchemaName, // schema name
-				SingularTable: false,
+				TablePrefix:   v.TableNamePrefix, // 表名前缀
+				SingularTable: true,
 			},
 			Logger: slowLogger,
 			// 为了确保数据一致性，GORM 会在事务里执行写入操作（创建、更新、删除）。
