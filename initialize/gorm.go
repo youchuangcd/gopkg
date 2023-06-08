@@ -8,6 +8,8 @@ import (
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+	"strings"
 	"time"
 )
 
@@ -18,6 +20,8 @@ type DBConfigItem struct {
 	MaxIdle     int    `mapstructure:"maxIdle" yaml:"maxIdle"`         //空闲连接池中连接的最大数量
 	MaxOpen     int    `mapstructure:"maxOpen" yaml:"maxOpen"`         //打开数据库连接的最大数量
 	MaxLifetime int    `mapstructure:"maxLifetime" yaml:"maxLifetime"` //连接可复用的最大时间 单位：秒
+	SchemaName  string `mapstructure:"schemaName" yaml:"schemaName"`   // 模式名
+	//TableNamePrefix string `mapstructure:"tableNamePrefix" yaml:"tableNamePrefix"` // 表名前缀
 }
 
 func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
@@ -58,7 +62,15 @@ func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
 		default:
 			panic(fmt.Sprintf("数据库: %s; 无效的数据库驱动: %s", v.Name, v.Driver))
 		}
+		schemaName := v.SchemaName
+		if len(schemaName) > 0 {
+			schemaName = strings.TrimSuffix(schemaName, ".") + "."
+		}
 		db, err := gorm.Open(dialector, &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				TablePrefix:   schemaName, // schema name
+				SingularTable: false,
+			},
 			Logger: slowLogger,
 			// 为了确保数据一致性，GORM 会在事务里执行写入操作（创建、更新、删除）。
 			// 如果没有这方面的要求，您可以在初始化时禁用它，这将获得大约 30%+ 性能提升。
