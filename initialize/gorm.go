@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"strings"
 	"time"
 )
 
@@ -62,13 +61,9 @@ func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
 		default:
 			panic(fmt.Sprintf("数据库: %s; 无效的数据库驱动: %s", v.Name, v.Driver))
 		}
-		schemaName := v.SchemaName
-		if len(schemaName) > 0 {
-			schemaName = strings.TrimSuffix(schemaName, ".") + "."
-		}
 		db, err := gorm.Open(dialector, &gorm.Config{
 			NamingStrategy: schema.NamingStrategy{
-				TablePrefix:   schemaName, // schema name
+				TablePrefix:   v.SchemaName, // schema name
 				SingularTable: false,
 			},
 			Logger: slowLogger,
