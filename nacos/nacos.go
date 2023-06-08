@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/cache"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/common/logger"
 	"github.com/nacos-group/nacos-sdk-go/model"
+	"github.com/nacos-group/nacos-sdk-go/util"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
@@ -81,17 +83,19 @@ func (p *Nacos) DefaultCallback(confUnmarshalMapValue map[string]UnmarshalMapVal
 }
 
 type Config struct {
-	IpAddr       string
-	ContextPath  string
-	Scheme       string
-	Port         uint64
-	NamespaceId  string
-	Group        string
-	AccessKey    string
-	SecretKey    string
-	Username     string
-	Password     string
-	UnmarshalMap map[string]UnmarshalMapValue
+	IpAddr           string
+	ContextPath      string
+	Scheme           string
+	Port             uint64
+	NamespaceId      string
+	Group            string
+	AccessKey        string
+	SecretKey        string
+	Username         string
+	Password         string
+	UnmarshalMap     map[string]UnmarshalMapValue
+	CacheDir         string // nacos缓存目录
+	IsUseCacheConfig bool   // 是否使用本地缓存配置内容
 }
 type UnmarshalMapValue struct {
 	// 新方式，如果使用此方式，可以获取到变动前的配置
@@ -135,16 +139,19 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 		//ContextPath: p.config.ContextPath,
 		//Scheme: p.config.Scheme,
 	}}
-	currentDir, err := os.Getwd()
-	if currentDir == "/" {
-		currentDir = ""
+	if p.config.CacheDir == "" {
+		currentDir, _ := os.Getwd()
+		if currentDir == "/" {
+			currentDir = ""
+		}
+		p.config.CacheDir = currentDir
 	}
 	cc := constant.ClientConfig{
 		NamespaceId:         p.config.NamespaceId,
 		TimeoutMs:           5 * 1000,
 		ListenInterval:      30 * 1000,
 		NotLoadCacheAtStart: true,
-		CacheDir:            currentDir,         //默认会把缓存下来的文件写入 currentDir/config
+		CacheDir:            p.config.CacheDir,  //默认会把缓存下来的文件写入 currentDir/config
 		AccessKey:           p.config.AccessKey, // ACM&KMS的AccessKey，用于配置中心的鉴权
 		SecretKey:           p.config.SecretKey,
 		Username:            p.config.Username,
@@ -161,15 +168,46 @@ func (p *Nacos) createConfig() (configClient config_client.IConfigClient, err er
 	return
 }
 
+// getCacheConfig
+//
+//	@Description: 使用缓存配置
+//	@receiver p
+//	@param group
+//	@param dataId
+//	@return content
+//	@return err
+func (p *Nacos) getCacheConfig(group, dataId string) (content string, err error) {
+	cacheKey := util.GetConfigCacheKey(dataId, group, p.config.NamespaceId)
+	cacheDir := p.config.CacheDir + string(os.PathSeparator) + "config"
+	content, err = cache.ReadConfigFromFile(cacheKey, cacheDir)
+	if err != nil {
+		panic(fmt.Sprintf("读取本地nacos缓存出错: dataId: %s; group: %s; cacheDir: %s", dataId, group, p.config.CacheDir))
+	}
+	if p.Callback == nil {
+		p.Callback = p.DefaultCallback
+	}
+	_ = p.Callback(p.config.UnmarshalMap, group, dataId, content)
+	return
+}
+
 // 读取配置内容
 func (p *Nacos) GetConfig(group, dataId string) (content string, err error) {
+	// 如果使用缓存配置，就直接读取缓存文件内容反序列化
+	if p.config.IsUseCacheConfig {
+		return p.getCacheConfig(group, dataId)
+	}
 	content, err = p.client.GetConfig(vo.ConfigParam{
 		DataId: dataId,
 		Group:  group,
 	})
 	if err != nil {
-		mylog.Error(nil, LogCategory, fmt.Sprintf("send msg failed, err:%s", err.Error()))
-		panic("无法连接Nacos，需要重新发布")
+		mylog.WithError(nil, LogCategory, map[string]any{
+			"err":    err,
+			"dataId": dataId,
+			"group":  group,
+			"host":   fmt.Sprintf("%s:%d", p.config.IpAddr, p.config.Port),
+		}, "获取nacos配置出错")
+		panic(fmt.Sprintf("无法获取Nacos配置，需要重新发布: dataId: %s, group: %s", dataId, group))
 	}
 	if p.Callback == nil {
 		p.Callback = p.DefaultCallback
