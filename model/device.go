@@ -21,7 +21,7 @@ const (
 	DeviceTypeWindows               = 0  //Windows协议设备
 	DeviceTypeAccountTrusteeship    = 0  //安卓托管设备
 	DeviceTypeChatRoomGuard         = 17 //群卫士协议设备类型
-	DeviceTypeWindowsSuperAddFrined = 18 //Windows超级加人设备
+	DeviceTypeWindowsSuperAddFriend = 18 //Windows超级加人设备
 	DeviceTypeWindowsProtocol       = 19 //windows协议版设备类型
 	DeviceTypeAZProtocol            = 20 //安卓协议_新
 	DeviceTypeWindowsPdd            = 21 //拼多多分身windows协议设备
