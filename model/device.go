@@ -18,8 +18,8 @@ const (
 	DeviceTypeScanCode              = 12 //扫码号设备
 	DeviceTypeAndroid               = 13 //安卓协议设备
 	DeviceTypeAndroidSimulator      = 14 //安卓模拟器
-	DeviceTypeWindows               = 0  //Windows协议设备
-	DeviceTypeAccountTrusteeship    = 0  //安卓托管设备
+	DeviceTypeWindows               = 15 //Windows协议设备
+	DeviceTypeAccountTrusteeship    = 16 //安卓托管设备
 	DeviceTypeChatRoomGuard         = 17 //群卫士协议设备类型
 	DeviceTypeWindowsSuperAddFriend = 18 //Windows超级加人设备
 	DeviceTypeWindowsProtocol       = 19 //windows协议版设备类型
