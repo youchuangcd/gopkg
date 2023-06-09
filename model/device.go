@@ -14,21 +14,21 @@ const (
 
 // 设备类型
 const (
-	DeviceTypeIOS                   = 10 //IOS协议设备
-	DeviceTypeScanCode              = 12 //扫码号设备
-	DeviceTypeAndroid               = 13 //安卓协议设备
-	DeviceTypeAndroidSimulator      = 14 //安卓模拟器
-	DeviceTypeWindows               = 15 //Windows协议设备
-	DeviceTypeAccountTrusteeship    = 16 //安卓托管设备
-	DeviceTypeChatRoomGuard         = 17 //群卫士协议设备类型
-	DeviceTypeWindowsSuperAddFriend = 18 //Windows超级加人设备
-	DeviceTypeWindowsProtocol       = 19 //windows协议版设备类型
-	DeviceTypeAZProtocol            = 20 //安卓协议_新
-	DeviceTypeWindowsPdd            = 21 //拼多多分身windows协议设备
-	DeviceTypeMacProtocol           = 22 //Mac协议设备类型
-	DeviceTypeAndroidPadProtocol    = 23 //安卓平板协议
-	DeviceTypeCloudProtocol         = 24 //云机设备
-	DeviceTypeWindowsLocal          = 25 //Windows本地部署
+	DeviceTypeWechatIOS                = 10 //个微·IOS协议
+	DeviceTypeWechatIPad               = 12 //个微·iPad协议
+	DeviceTypeWechatAndroid            = 13 //个微·安卓协议
+	DeviceTypeWechatAndroidSimulator   = 14 //个微·安卓模拟器
+	DeviceTypeWechatWindowsProtocol    = 19 //个微·Windows协议
+	DeviceTypeWechatMacProtocol        = 22 //个微·Mac协议
+	DeviceTypeWechatAndroidPadProtocol = 23 //个微·安卓Pad协议
+	DeviceTypeWorkWechatXposed         = 30 //企微·Xposed
+	DeviceTypeWorkWechatWindows        = 31 //企微·Windows
+	DeviceTypeWorkWechatIPad           = 32 //企微·iPad协议
+	DeviceTypeWorkWechatIPhone         = 33 //企微·iPhone协议
+	DeviceTypeWorkWechatAndroidCloud   = 34 //企微·安卓云真机
+	DeviceTypeWorkWechatAndroid        = 35 //企微·安卓协议
+	DeviceTypeQQAndroid                = 50 //QQ·安卓协议
+	DeviceTypeQQWindowsProtocol        = 51 //QQ·Windows协议
 )
 
 const (
