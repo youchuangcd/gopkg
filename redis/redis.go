@@ -24,17 +24,17 @@ type Pool struct {
 }
 
 type Config struct {
-	Name           string `mapstructure:"name"` // 实例名称
-	Host           string `mapstructure:"host"`
-	Port           int    `mapstructure:"port"`
-	Password       string `mapstructure:"password"`
-	MaxIdle        int    `mapstructure:"maxIdle"`        //最大空闲连接数
-	MaxActive      int    `mapstructure:"maxActive"`      //最大连接数
-	IdleTimeout    int    `mapstructure:"idleTimeout"`    //空闲连接超时时间 单位：纳秒
-	Database       int    `mapstructure:"database"`       // 选择db
-	ConnectTimeout int    `mapstructure:"connectTimeout"` //连接超时 单位毫秒
-	ReadTimeout    int    `mapstructure:"readTimeout"`    //读取超时 单位毫秒
-	WriteTimeout   int    `mapstructure:"writeTimeout"`   //写入超时 单位毫秒
+	Name           string `mapstructure:"name" yaml:"name"` // 实例名称
+	Host           string `mapstructure:"host" yaml:"host"`
+	Port           int    `mapstructure:"port" yaml:"port"`
+	Password       string `mapstructure:"password" yaml:"password"`
+	MaxIdle        int    `mapstructure:"maxIdle" yaml:"maxIdle"`               //最大空闲连接数
+	MaxActive      int    `mapstructure:"maxActive" yaml:"maxActive"`           //最大连接数
+	IdleTimeout    int    `mapstructure:"idleTimeout" yaml:"idleTimeout"`       //空闲连接超时时间 单位：纳秒
+	Database       int    `mapstructure:"database" yaml:"database"`             // 选择db
+	ConnectTimeout int    `mapstructure:"connectTimeout" yaml:"connectTimeout"` //连接超时 单位毫秒
+	ReadTimeout    int    `mapstructure:"readTimeout" yaml:"readTimeout"`       //读取超时 单位毫秒
+	WriteTimeout   int    `mapstructure:"writeTimeout" yaml:"writeTimeout"`     //写入超时 单位毫秒
 }
 
 func InitRedis(configs []Config) {

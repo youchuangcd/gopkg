@@ -8,13 +8,11 @@ kill -s USR1|USR2 程序的进程号
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/youchuangcd/gopkg"
 	"io/ioutil"
 	"log"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 )
@@ -28,7 +26,6 @@ var (
 	logger        *MyLogger
 	loggerSpecial *MyLoggerSpecial
 	initLog       sync.Once
-	conf          LogConfig
 )
 
 type LogConfig struct {
@@ -250,26 +247,11 @@ func loggerEntry(ctx context.Context, category string, args ...interface{}) *log
 			entry = entry.WithField(gopkg.LogTaskIdKey, taskId)
 		}
 	}
-	entry = entry.WithField("env", conf.Env)
+	entry = entry.WithField("env", gopkg.Env)
 	// 追加调用方法名称
 	pc, _, _, _ := runtime.Caller(callerSkip)
 	entry = entry.WithField("func", runtime.FuncForPC(pc).Name())
 	return entry
-}
-
-// getLogFilePath get the log file save path
-func getLogFilePath() string {
-	//return fmt.Sprintf("%s%s", setting.AppSetting.RuntimeRootPath, setting.AppSetting.LogSavePath)
-	return fmt.Sprintf("%s/", strings.TrimRight(conf.SavePath, "/"))
-}
-
-// getLogFileName get the save name of the log file
-func getLogFileName() string {
-	return fmt.Sprintf("%s%s.%s",
-		conf.SaveName,
-		conf.TimeFormat,
-		conf.FileExt,
-	)
 }
 
 // RecordGoroutineRecoverLog

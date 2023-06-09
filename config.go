@@ -132,7 +132,7 @@ var (
 		DialContext:       dial.DialContext,
 		ForceAttemptHTTP2: true,
 		//MaxIdleConns:          100,
-		MaxConnsPerHost:       100, // 限制每个域名连接总数；包括处于拨号、活动和空闲状态的连接
+		//MaxConnsPerHost:       100, // 限制每个域名连接总数；包括处于拨号、活动和空闲状态的连接
 		MaxIdleConnsPerHost:   100, // 默认每个host只存放2个连接，其他连接会被关闭进入TIME_WAIT,并发大就改大点
 		IdleConnTimeout:       90 * time.Second,
 		TLSHandshakeTimeout:   10 * time.Second,

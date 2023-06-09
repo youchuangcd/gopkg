@@ -219,3 +219,19 @@ func (p *JsonValue) UnmarshalJSON(data []byte) error {
 func (p *JsonValue) GetValByte() []byte {
 	return p.valByte
 }
+
+// GetTableName
+//
+//	@Description: 获取表名
+//	@param ctx
+//	@param tx
+//	@param dest 模型值或指针
+//	@return string
+func GetTableName(ctx context.Context, tx *gorm.DB, dest any) string {
+	db := GetDB(ctx, tx)
+	err := db.Statement.Parse(dest)
+	if err == nil {
+		return db.Statement.Schema.Table
+	}
+	return ""
+}
