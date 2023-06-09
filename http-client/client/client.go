@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/youchuangcd/gopkg"
+	"github.com/youchuangcd/gopkg/common/utils"
 	"github.com/youchuangcd/gopkg/mylog"
 	"io"
 	"net/http"
@@ -90,6 +91,8 @@ func (r Client) DoRequestWithForm(ctx context.Context, method, reqUrl string, he
 			reqBody = []byte(v2)
 		} else if v3, ok3 := data.(url.Values); ok3 {
 			reqBody = []byte(v3.Encode())
+		} else if v4, ok4 := data.(map[string]any); ok4 {
+			reqBody = []byte(utils.MapUrlEncode(v4))
 		}
 	}
 
@@ -99,6 +102,13 @@ func (r Client) DoRequestWithForm(ctx context.Context, method, reqUrl string, he
 
 	if headers.Get("Content-Type") == "" {
 		headers.Add("Content-Type", "application/x-www-form-urlencoded")
+	}
+	if method == http.MethodGet {
+		if strings.Index(reqUrl, "?") > 0 {
+			reqUrl += "&" + string(reqBody)
+		} else {
+			reqUrl += "?" + string(reqBody)
+		}
 	}
 	return r.DoRequestWith(ctx, method, reqUrl, headers, bytes.NewReader(reqBody), len(reqBody))
 }
@@ -358,6 +368,20 @@ func (r Client) CallWithJson(ctx context.Context, ret interface{}, method, reqUr
 		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
 	}
 	resp, err := r.DoRequestWithJson(ctx, method, reqUrl, headers, param)
+	if err != nil {
+		return err
+	}
+	return CallRet(ctx, ret, resp)
+}
+
+// CallWithForm Form请求
+func (r Client) CallWithForm(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header,
+	param interface{}) (err error) {
+	if DebugMode {
+		ctx = context.WithValue(ctx, insReqStartTimeKey, time.Now())
+		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
+	}
+	resp, err := r.DoRequestWithForm(ctx, method, reqUrl, headers, param)
 	if err != nil {
 		return err
 	}

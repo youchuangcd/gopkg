@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"github.com/youchuangcd/gopkg"
 	"math/rand"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -296,4 +299,21 @@ func FormatStar(s string, args ...int) string {
 	sb.WriteString(string(ns[half+starHalf:]))
 	//return string(ns[:half-starHalf]) + strings.Repeat("*", starNum) + string(ns[half + starHalf:])
 	return sb.String()
+}
+
+// MapUrlEncode
+//
+//	@Description: map转url encode
+//	@param data map[string]any
+//	@return string
+func MapUrlEncode(data map[string]any) string {
+	var buf bytes.Buffer
+	for k, v := range data {
+		buf.WriteString(url.QueryEscape(k))
+		buf.WriteByte('=')
+		buf.WriteString(url.QueryEscape(fmt.Sprintf("%v", v)))
+		buf.WriteByte('&')
+	}
+	s := buf.String()
+	return s[0 : len(s)-1]
 }

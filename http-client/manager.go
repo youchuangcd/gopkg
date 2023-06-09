@@ -75,6 +75,10 @@ func CallWithJson(ctx context.Context, ret interface{}, method, reqUrl string, h
 	return DefaultManager().Client.CallWithJson(ctx, ret, method, reqUrl, headers, param)
 }
 
+func CallWithForm(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header, param interface{}) (err error) {
+	return DefaultManager().Client.CallWithForm(ctx, ret, method, reqUrl, headers, param)
+}
+
 func CallWithJsonReturnResp(ctx context.Context, retBuf *bytes.Buffer, method, reqUrl string, headers http.Header, param interface{}) (err error) {
 	return DefaultManager().Client.CallWithJsonReturnResp(ctx, retBuf, method, reqUrl, headers, param)
 }
