@@ -72,11 +72,11 @@ func Gorm(dbList []DBConfigItem, gormLevel int, gormDBMap map[string]*gorm.DB) {
 			DisableLastInsertId:    disableLastInsertId, // TODO 这个魔改的配置，后续官方支持关闭功能，就会撤掉
 		})
 		if err != nil {
-			panic(fmt.Sprintf("%s数据库%s初始化失败，原因：%s", v.Driver, v.Name, err.Error()))
+			panic(fmt.Sprintf("%s数据库%s(%s)初始化失败，原因：%s", v.Driver, v.Name, v.Dsn, err.Error()))
 		}
 		sqlDB, err := db.DB()
 		if err != nil {
-			panic(fmt.Sprintf("获取%s数据库%sDB对象失败，原因：%s", v.Driver, v.Name, err.Error()))
+			panic(fmt.Sprintf("获取%s数据库%s(%s)DB对象失败，原因：%s", v.Driver, v.Name, v.Dsn, err.Error()))
 		}
 		if v.MaxIdle > 0 {
 			// SetMaxIdleConns 设置空闲连接池中连接的最大数量
