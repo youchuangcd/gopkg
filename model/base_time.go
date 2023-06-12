@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"github.com/youchuangcd/gopkg"
+	"gorm.io/gorm/schema"
 	"strconv"
 	"strings"
 	"time"
@@ -76,6 +77,10 @@ func (t LocalTime) Value() (driver.Value, error) {
 	return t.Time, nil
 }
 
+func (t LocalTime) GormDataType() string {
+	return string(schema.Time)
+}
+
 // Scan
 // @Description:
 // @receiver t
@@ -125,7 +130,15 @@ func (t *LocalDateTime) UnmarshalJSON(data []byte) error {
 // @return driver.Value
 // @return error
 func (t LocalDateTime) Value() (driver.Value, error) {
-	return t.Format(gopkg.DateTimeFormat), nil
+	var zeroTime time.Time
+	if t.Time.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return t.Time, nil
+}
+
+func (t LocalDateTime) GormDataType() string {
+	return string(schema.Time)
 }
 
 // Scan
@@ -176,7 +189,15 @@ func (t *LocalDate) UnmarshalJSON(data []byte) error {
 // @return driver.Value
 // @return error
 func (t LocalDate) Value() (driver.Value, error) {
-	return t.Format(gopkg.DateFormat), nil
+	var zeroTime time.Time
+	if t.Time.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return t.Time, nil
+}
+
+func (t LocalDate) GormDataType() string {
+	return string(schema.Time)
 }
 
 // Scan
@@ -373,6 +394,10 @@ func (t LocalDateMsTime) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return t.Time, nil
+}
+
+func (t LocalDateMsTime) GormDataType() string {
+	return string(schema.Time)
 }
 
 // Scan
