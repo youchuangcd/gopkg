@@ -32,7 +32,31 @@ const (
 )
 
 const (
-	ProductTypeQQ         = 10 //QQ
-	ProductTypeWeChat     = 20 //个人微信
-	ProductTypeWorkWechat = 30 //企业微信
+	DeviceProductTypeQQ         = 10 //QQ
+	DeviceProductTypeWeChat     = 20 //个人微信
+	DeviceProductTypeWorkWechat = 30 //企业微信
+)
+
+var (
+	// 设备类型映射产品类型
+	DeviceProductTypeMap = map[int]int{
+		// 个微
+		DeviceTypeWechatIOS:                DeviceProductTypeWeChat,
+		DeviceTypeWechatIPad:               DeviceProductTypeWeChat,
+		DeviceTypeWechatAndroid:            DeviceProductTypeWeChat,
+		DeviceTypeWechatAndroidSimulator:   DeviceProductTypeWeChat,
+		DeviceTypeWechatWindowsProtocol:    DeviceProductTypeWeChat,
+		DeviceTypeWechatMacProtocol:        DeviceProductTypeWeChat,
+		DeviceTypeWechatAndroidPadProtocol: DeviceProductTypeWeChat,
+		// 企微
+		DeviceTypeWorkWechatXposed:       DeviceProductTypeWorkWechat,
+		DeviceTypeWorkWechatWindows:      DeviceProductTypeWorkWechat,
+		DeviceTypeWorkWechatIPad:         DeviceProductTypeWorkWechat,
+		DeviceTypeWorkWechatIPhone:       DeviceProductTypeWorkWechat,
+		DeviceTypeWorkWechatAndroidCloud: DeviceProductTypeWorkWechat,
+		DeviceTypeWorkWechatAndroid:      DeviceProductTypeWorkWechat,
+		// QQ
+		DeviceTypeQQAndroid:         DeviceProductTypeQQ,
+		DeviceTypeQQWindowsProtocol: DeviceProductTypeQQ,
+	}
 )
