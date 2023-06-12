@@ -77,9 +77,9 @@ func (t LocalTime) Value() (driver.Value, error) {
 	return t.Time, nil
 }
 
-func (t LocalTime) GormDataType() string {
-	return string(schema.Time)
-}
+//func (t LocalTime) GormDataType() string {
+//	return string(schema.Time)
+//}
 
 // Scan
 // @Description:
