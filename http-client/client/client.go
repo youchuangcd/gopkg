@@ -3,7 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common/utils"
 	"github.com/youchuangcd/gopkg/mylog"
@@ -27,6 +27,7 @@ var (
 	DeepDebugInfo      = gopkg.HttpClientDeepDebugInfo
 	insReqStartTimeKey = reqStartTimeKey{}
 	insReqUrlKey       = reqUrlKey{}
+	json               = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
 type reqStartTimeKey struct{}
