@@ -7,6 +7,7 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"github.com/youchuangcd/gopkg"
 	"github.com/youchuangcd/gopkg/common"
+	"github.com/youchuangcd/gopkg/common/utils"
 )
 
 func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName string, cb func(ctx context.Context, s *sarama.ConsumerMessage) error, goPoolSize int, args ...interface{}) {
@@ -29,7 +30,8 @@ func (k Kafka) Consumer(ctx context.Context, topics []string, consumerGroupName 
 		consumerGroupName = k.group
 	}
 	if common.EnvLocal() || common.EnvDev() { // 开发环境会追加环境变量，与其他环境隔开
-		consumerGroupName += "_" + gopkg.EnvDev
+		macAddr, _ := utils.GetMac()
+		consumerGroupName += "_" + gopkg.EnvDev + "_" + utils.MD5V([]byte(macAddr)) // 追加mac地址解决本地开发每个人启动触发rebalance
 	}
 	k.group = consumerGroupName
 	client, err := sarama.NewConsumerGroup(addrs, consumerGroupName, conf)
