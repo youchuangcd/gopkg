@@ -110,6 +110,7 @@ func (r Client) DoRequestWithForm(ctx context.Context, method, reqUrl string, he
 		} else {
 			reqUrl += "?" + string(reqBody)
 		}
+		reqBody = nil
 	}
 	return r.DoRequestWith(ctx, method, reqUrl, headers, bytes.NewReader(reqBody), len(reqBody))
 }
