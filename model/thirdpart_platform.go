@@ -43,33 +43,45 @@ const ThirdpartPlatformIdScanBuildDyMetaData = 10000 // 抖音扫描元数据建
 type RelationType int
 
 const (
-	RelationTypeOrder               RelationType = 1001 // 订单数据
-	RelationTypeGood                RelationType = 1002 // 商品数据
-	RelationTypeLiveAction          RelationType = 1003 // 直播间行为数据
-	RelationTypeTarget              RelationType = 1004 // 关键词目标数据
-	RelationTypeVideoList           RelationType = 1005 // 视频列表数据
-	RelationTypeVideoComment        RelationType = 1006 // 视频评论数据
-	RelationTypeLiveLuckyBagDy      RelationType = 1007 // 福袋数据
-	RelationTypeMonitorTaskCallback RelationType = 1008 // 主页链接用户数据
-	RelationTypeUserLevel           RelationType = 1009 // 用户等级数据
-	RelationTypeGoodsComment        RelationType = 1010 // 商品评论数据
-	RelationTypeUpdateUserInfo      RelationType = 1011 // 用户主页信息(开播更新)
-	RelationTypeBecomeFriend        RelationType = 1101 // 成为好友关联数据
+	RelationTypeOrder                RelationType = 1001 // 订单数据
+	RelationTypeGood                 RelationType = 1002 // 商品数据
+	RelationTypeLiveAction           RelationType = 1003 // 直播间行为数据
+	RelationTypeTarget               RelationType = 1004 // 关键词目标数据
+	RelationTypeVideoList            RelationType = 1005 // 视频列表数据
+	RelationTypeVideoComment         RelationType = 1006 // 视频评论数据
+	RelationTypeLiveLuckyBagDy       RelationType = 1007 // 福袋数据
+	RelationTypeMonitorTaskCallback  RelationType = 1008 // 主页链接用户数据
+	RelationTypeUserLevel            RelationType = 1009 // 用户等级数据
+	RelationTypeGoodsComment         RelationType = 1010 // 商品评论数据
+	RelationTypeUpdateUserInfo       RelationType = 1011 // 用户主页信息(开播更新)
+	RelationTypeBecomeFriend         RelationType = 1101 // 成为好友关联数据
+	RelationTypeWechatVideoComments  RelationType = 7016 // 视频评论回调数据
+	RelationTypeWechatVideoUserInfo  RelationType = 7013 // 达人信息回调数据
+	RelationTypeWechatVideoInfos     RelationType = 7014 // 视频信息回调数据
+	RelationTypeWechatVideoLiveStart RelationType = 7033 // 直播间开播回调数据
+	RelationTypeWechatVideoLiveCome  RelationType = 7034 // 直播间行为信息-（进入直播间、点赞直播间、评论直播间、购买商品）
+	RelationTypeWechatVideoLiveEnd   RelationType = 7035 // 直播间关播回调数据
 )
 
 var RelationTypeMap = map[RelationType]string{
-	RelationTypeOrder:               "订单数据",
-	RelationTypeGood:                "商品数据",
-	RelationTypeLiveAction:          "直播间行为数据",
-	RelationTypeTarget:              "关键词目标数据",
-	RelationTypeVideoList:           "视频列表数据",
-	RelationTypeVideoComment:        "视频评论数据",
-	RelationTypeLiveLuckyBagDy:      "福袋数据",
-	RelationTypeMonitorTaskCallback: "主页链接用户数据",
-	RelationTypeUserLevel:           "用户等级数据",
-	RelationTypeGoodsComment:        "商品评论数据",
-	RelationTypeUpdateUserInfo:      "用户主页信息(开播更新)",
-	RelationTypeBecomeFriend:        "成为好友关联数据",
+	RelationTypeOrder:                "订单数据",
+	RelationTypeGood:                 "商品数据",
+	RelationTypeLiveAction:           "直播间行为数据",
+	RelationTypeTarget:               "关键词目标数据",
+	RelationTypeVideoList:            "视频列表数据",
+	RelationTypeVideoComment:         "视频评论数据",
+	RelationTypeLiveLuckyBagDy:       "福袋数据",
+	RelationTypeMonitorTaskCallback:  "主页链接用户数据",
+	RelationTypeUserLevel:            "用户等级数据",
+	RelationTypeGoodsComment:         "商品评论数据",
+	RelationTypeUpdateUserInfo:       "用户主页信息(开播更新)",
+	RelationTypeBecomeFriend:         "成为好友关联数据",
+	RelationTypeWechatVideoComments:  "视频评论回调数据",
+	RelationTypeWechatVideoUserInfo:  "达人信息回调数据",
+	RelationTypeWechatVideoInfos:     "视频信息回调数据",
+	RelationTypeWechatVideoLiveStart: "直播间开播回调数据",
+	RelationTypeWechatVideoLiveCome:  "直播间行为信息-（进入直播间、点赞直播间、评论直播间、购买商品）",
+	RelationTypeWechatVideoLiveEnd:   "直播间关播回调数据",
 }
 
 // 关联来源
