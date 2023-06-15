@@ -102,7 +102,8 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 	err = k.callbackBatchProcess(ctx, msgs)
 	if err != nil || logConf.Consumer {
 		logMsg := "[BatchConsumer] Message Success"
-		msg := msgs[len(msgs)-1]
+		msgNum := len(msgs)
+		msg := msgs[msgNum-1]
 		logFunc := logConf.Logger.LogInfo
 		// 从消息头部中取traceId 和msgId 写到上下文中
 		for _, v := range msg.Headers {
@@ -118,6 +119,7 @@ func (k Kafka) batchProcess(ctx context.Context, items []any) (err error) {
 			"offset":    msg.Offset,
 			"key":       string(msg.Key),
 			"value":     k.cutStrFromLogConfig(string(msg.Value)),
+			"msgNum":    msgNum,
 		}
 		if err != nil {
 			logMsg = "[BatchConsumer] Message Failed"
