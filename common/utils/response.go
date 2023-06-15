@@ -115,12 +115,13 @@ func IsNil(i interface{}) bool {
 }
 
 func RetJson(ctx *gin.Context, e *gopkg.Error, data interface{}, args ...interface{}) {
+	traceId, _ := ctx.Value(gopkg.RequestHeaderTraceIdKey).(string)
 	responseData := gin.H{
 		"code":         e.GetCode(),
 		"success":      true,
 		"message":      e.GetMsg(),
 		"service_time": time.Now().Unix(),
-		"serial_no":    "",
+		"serial_no":    traceId,
 		"data":         data,
 	}
 	statusCode := http.StatusOK

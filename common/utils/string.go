@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"github.com/youchuangcd/gopkg"
-	"math"
 	"math/rand"
+	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -65,20 +68,30 @@ func RemoveRepeatedStr(s []string) []string {
 // @return uid
 // @return err
 var (
-	uuidCount            = atomic.Uint64{} // 唯一id的全局计数器，解决单机唯一id冲突的问题
-	resetMax      uint64 = math.MaxUint64 - 1000000
-	initRandCount        = strconv.FormatInt(time.Now().UnixNano(), 10) // 降低多节点同时获取id可能出现重复的概率
+	macAddr, _ = GetMac()
+	uuidCount  = uuidCountParam{
+		initStr: MD5V([]byte(macAddr + strconv.FormatInt(time.Now().UnixNano(), 10) + strconv.FormatInt(int64(os.Getpid()), 10))), // 降低多节点同时获取id可能出现重复的概率
+	}
 )
 
+type uuidCountParam struct {
+	count   atomic.Uint64
+	initStr string
+}
+
 func UUID() (uid MyUUID, err error) {
-	// 防止超出最大值
-	if uuidCount.Load() > resetMax {
-		// 跟旧值一致才修改
-		uuidCount.CompareAndSwap(uuidCount.Load(), 0)
-	}
+	// 计数器值 + 19位时间戳 纳秒级
+	//uid = MyUUID{
+	//	Value: MD5V([]byte(uuidCount.initStr + strconv.FormatUint(uuidCount.count.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
+	//}
+	var b bytes.Buffer
+	b.Grow(100)
+	b.WriteString(uuidCount.initStr)
+	b.WriteString(strconv.FormatUint(uuidCount.count.Add(1), 10))
+	b.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
 	// 计数器值 + 19位时间戳 纳秒级
 	uid = MyUUID{
-		Value: MD5V([]byte(initRandCount + strconv.FormatUint(uuidCount.Add(1), 10) + strconv.FormatInt(time.Now().UnixNano(), 10))),
+		Value: MD5V(b.Bytes()),
 	}
 	return uid, nil
 }
@@ -295,4 +308,21 @@ func FormatStar(s string, args ...int) string {
 	sb.WriteString(string(ns[half+starHalf:]))
 	//return string(ns[:half-starHalf]) + strings.Repeat("*", starNum) + string(ns[half + starHalf:])
 	return sb.String()
+}
+
+// MapUrlEncode
+//
+//	@Description: map转url encode
+//	@param data map[string]any
+//	@return string
+func MapUrlEncode(data map[string]any) string {
+	var buf bytes.Buffer
+	for k, v := range data {
+		buf.WriteString(url.QueryEscape(k))
+		buf.WriteByte('=')
+		buf.WriteString(url.QueryEscape(fmt.Sprintf("%v", v)))
+		buf.WriteByte('&')
+	}
+	s := buf.String()
+	return s[0 : len(s)-1]
 }

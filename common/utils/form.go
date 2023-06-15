@@ -31,14 +31,16 @@ func BindValid(c *gin.Context, form interface{}) *gopkg.Error {
 		// 获取validator.ValidationErrors类型的errors
 		errs, ok := err.(validator.ValidationErrors)
 		if ok {
-			errMap := removeTopStruct(errs.Translate(gopkg.Trans))
-			logContent["err"] = errMap
-			var errBuff strings.Builder
-			for _, v := range errMap {
-				errBuff.WriteString(v)
-				errBuff.WriteString(",")
+			if gopkg.Trans != nil {
+				errMap := removeTopStruct(errs.Translate(gopkg.Trans))
+				logContent["err"] = errMap
+				var errBuff strings.Builder
+				for _, v := range errMap {
+					errBuff.WriteString(v)
+					errBuff.WriteString(",")
+				}
+				invalidParamErr.Set(strings.TrimRight(errBuff.String(), ","))
 			}
-			invalidParamErr.Set(strings.TrimRight(errBuff.String(), ","))
 		}
 		mylog.WithWarn(c, gopkg.LogCtx, logContent, "绑定参数校验失败")
 		return invalidParamErr

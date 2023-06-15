@@ -40,14 +40,14 @@ type GormModelTime struct {
 
 // gorm.Model 的定义
 type GormModelAt struct {
-	ID        uint            `json:"id" gorm:"primaryKey" mapstructure:"id" redis:"id"`
+	ID        uint            `json:"id" gorm:"primaryKey" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
 
 // gorm.Model dws的定义
 type GormModelAtDws struct {
-	ID        uint            `json:"id" mapstructure:"id" redis:"id"`
+	ID        uint            `json:"id" gorm:"autoIncrement:true" redis:"id"`
 	CreatedAt LocalDateMsTime `json:"created_at" gorm:"autoCreateTime" redis:"created_at"`
 	UpdatedAt LocalDateMsTime `json:"updated_at" gorm:"autoUpdateTime" redis:"-"`
 }
@@ -86,7 +86,12 @@ func GetDB(ctx context.Context, tx *gorm.DB, args ...interface{}) (db *gorm.DB) 
 		} else if key, ok := ctx.Value(gopkg.ContextDBMapKey).(string); ok { // 从上下文里切换
 			gormDBMapKey = key
 		}
-		db = gopkg.GormDBMap[gormDBMapKey].WithContext(ctx)
+		newCtx := ctx
+		// http请求的话，要提取request里面的上下文才可以获取到b3请求头
+		//if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+		//	newCtx = ginCtx.Request.Context()
+		//}
+		db = gopkg.GormDBMap[gormDBMapKey].WithContext(newCtx)
 	}
 	return
 }
@@ -213,4 +218,20 @@ func (p *JsonValue) UnmarshalJSON(data []byte) error {
 //	@return []byte
 func (p *JsonValue) GetValByte() []byte {
 	return p.valByte
+}
+
+// GetTableName
+//
+//	@Description: 获取表名
+//	@param ctx
+//	@param tx
+//	@param dest 模型值或指针
+//	@return string
+func GetTableName(ctx context.Context, tx *gorm.DB, dest any) string {
+	db := GetDB(ctx, tx)
+	err := db.Statement.Parse(dest)
+	if err == nil {
+		return db.Statement.Schema.Table
+	}
+	return ""
 }

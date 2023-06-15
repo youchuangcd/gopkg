@@ -2,6 +2,8 @@ package gopkg
 
 import (
 	"gorm.io/gorm"
+	"net"
+	"net/http"
 	"time"
 )
 
@@ -43,16 +45,26 @@ var (
 )
 
 var (
-	RequestLogTypeFlag      = "request"
-	RequestHeaderTraceIdKey = "X-Request-Id"
-	RequestHeaderSpanIdKey  = "X-Request-Span-Id"
-	LogTraceIdKey           = "traceId"
-	LogSpanIdKey            = "spanId"
-	LogParentSpanIdKey      = "parentSpanId"
-	LogUserIdKey            = "userId"
-	LogTaskIdKey            = "taskId"
-	LogMsgIdKey             = "msgId"
-	LogParentMsgIdKey       = "parentMsgId"
+	RequestLogTypeFlag             = "request"
+	RequestHeaderTraceIdKey        = "X-Request-Id"
+	RequestHeaderSpanIdKey         = "X-Request-Span-Id"
+	RequestB3HeaderTraceIdKey      = "X-B3-TraceId"
+	RequestB3HeaderSpanIdKey       = "X-B3-SpanId"
+	RequestB3HeaderParentSpanIdKey = "X-B3-ParentSpanId"
+	RequestB3HeaderSampledKey      = "X-B3-Sampled"
+	RequestB3HeaderFlagsKey        = "X-B3-Flags"
+	RequestB3HeaderKey             = "B3"
+	RequestLightStepKey            = "x-ot-span-context"
+
+	RequestB3Headers = []string{RequestHeaderTraceIdKey, RequestB3HeaderTraceIdKey, RequestB3HeaderSpanIdKey, RequestB3HeaderParentSpanIdKey, RequestB3HeaderSampledKey, RequestB3HeaderFlagsKey, RequestB3HeaderKey, RequestLightStepKey}
+
+	LogTraceIdKey      = "traceId"
+	LogSpanIdKey       = "spanId"
+	LogParentSpanIdKey = "parentSpanId"
+	LogUserIdKey       = "userId"
+	LogTaskIdKey       = "taskId"
+	LogMsgIdKey        = "msgId"
+	LogParentMsgIdKey  = "parentMsgId"
 
 	// 请求来源
 	ContextRequestSourceKey = "X-Request-Source"
@@ -111,4 +123,21 @@ var (
 // http client相关配置
 var (
 	HttpClientTimeout = 5 * time.Second // 默认超时时间
+	dial              = &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+	HttpClientDefaultTransport http.RoundTripper = &http.Transport{
+		Proxy:             http.ProxyFromEnvironment,
+		DialContext:       dial.DialContext,
+		ForceAttemptHTTP2: true,
+		//MaxIdleConns:          100,
+		//MaxConnsPerHost:       100, // 限制每个域名连接总数；包括处于拨号、活动和空闲状态的连接
+		MaxIdleConnsPerHost:   100, // 默认每个host只存放2个连接，其他连接会被关闭进入TIME_WAIT,并发大就改大点
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+	HttpClientDebugMode     = true // 是否开启debug模式
+	HttpClientDeepDebugInfo = true
 )

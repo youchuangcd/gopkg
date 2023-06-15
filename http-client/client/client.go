@@ -3,13 +3,15 @@ package client
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/youchuangcd/gopkg"
+	"github.com/youchuangcd/gopkg/common/utils"
 	"github.com/youchuangcd/gopkg/mylog"
 	"io"
 	"net/http"
 	"net/http/httptrace"
 	"net/http/httputil"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -20,11 +22,12 @@ var (
 	// DefaultClient 默认Client
 	DefaultClient = Client{&http.Client{Transport: http.DefaultTransport}}
 	// DebugMode 用来打印调试信息
-	DebugMode = true
+	DebugMode = gopkg.HttpClientDebugMode
 	// DeepDebugInfo 调试信息
-	DeepDebugInfo      = true
+	DeepDebugInfo      = gopkg.HttpClientDeepDebugInfo
 	insReqStartTimeKey = reqStartTimeKey{}
 	insReqUrlKey       = reqUrlKey{}
+	json               = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
 type reqStartTimeKey struct{}
@@ -36,11 +39,6 @@ type reqUrlKey struct{}
 type Client struct {
 	*http.Client
 }
-
-// TurnOnDebug 开启Debug模式
-//func TurnOnDebug() {
-//	DebugMode = true
-//}
 
 // WithTraceId 把traceId加入context中
 func WithTraceId(ctx context.Context, traceId string) context.Context {
@@ -66,21 +64,6 @@ func newRequest(ctx context.Context, method, reqUrl string, headers http.Header,
 	req.Header = headers
 	req = req.WithContext(ctx)
 
-	if DebugMode {
-		trace := &httptrace.ClientTrace{
-			//GotConn: func(connInfo httptrace.GotConnInfo) {
-			//	remoteAddr := connInfo.Conn.RemoteAddr()
-			//	mylog.Info(ctx, LogCategoryHttp, fmt.Sprintf("Network: %s, Remote ip:%s, URL: %s", remoteAddr.Network(), remoteAddr.String(), req.URL))
-			//},
-		}
-		req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-		bs, bErr := httputil.DumpRequest(req, DeepDebugInfo)
-		if bErr != nil {
-			err = bErr
-			return
-		}
-		mylog.Info(ctx, gopkg.LogHttp, string(bs))
-	}
 	return
 }
 
@@ -94,6 +77,42 @@ func (r Client) DoRequestWith(ctx context.Context, method, reqUrl string, header
 	}
 	req.ContentLength = int64(bodyLength)
 	return r.Do(ctx, req)
+}
+
+// DoRequestWithForm Form请求
+func (r Client) DoRequestWithForm(ctx context.Context, method, reqUrl string, headers http.Header,
+	data interface{}) (resp *http.Response, err error) {
+
+	var reqBody []byte
+	if data != nil {
+		// 直接传url.Values encode后的字节
+		if v, ok := data.([]byte); ok {
+			reqBody = v
+		} else if v2, ok2 := data.(string); ok2 {
+			reqBody = []byte(v2)
+		} else if v3, ok3 := data.(url.Values); ok3 {
+			reqBody = []byte(v3.Encode())
+		} else if v4, ok4 := data.(map[string]any); ok4 {
+			reqBody = []byte(utils.MapUrlEncode(v4))
+		}
+	}
+
+	if headers == nil {
+		headers = http.Header{}
+	}
+
+	if headers.Get("Content-Type") == "" {
+		headers.Add("Content-Type", "application/x-www-form-urlencoded")
+	}
+	if method == http.MethodGet {
+		if strings.Index(reqUrl, "?") > 0 {
+			reqUrl += "&" + string(reqBody)
+		} else {
+			reqUrl += "?" + string(reqBody)
+		}
+		reqBody = nil
+	}
+	return r.DoRequestWith(ctx, method, reqUrl, headers, bytes.NewReader(reqBody), len(reqBody))
 }
 
 // DoRequestWithJson JSON请求
@@ -135,6 +154,34 @@ func (r Client) Do(ctx context.Context, req *http.Request) (resp *http.Response,
 
 	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", UserAgent)
+	}
+	// 追加istio B3 请求头
+	for _, key := range gopkg.RequestB3Headers {
+		if val, ok := ctx.Value(key).(string); ok && val != "" {
+			req.Header.Set(key, val)
+		}
+	}
+	//var newCtx = ctx
+	//// http请求的话，要提取request里面的上下文才可以获取到b3请求头
+	//if ginCtx, ok := ctx.Value(gin.ContextKey).(*gin.Context); ok {
+	//	newCtx = ginCtx.Request.Context()
+	//}
+	// 把上游传递过来的追踪参数从上下文中提取出来注入到请求中
+	//otel.GetTextMapPropagator().Inject(newCtx, propagation.HeaderCarrier(req.Header))
+	if DebugMode {
+		trace := &httptrace.ClientTrace{
+			//GotConn: func(connInfo httptrace.GotConnInfo) {
+			//	remoteAddr := connInfo.Conn.RemoteAddr()
+			//	mylog.Info(ctx, LogCategoryHttp, fmt.Sprintf("Network: %s, Remote ip:%s, URL: %s", remoteAddr.Network(), remoteAddr.String(), req.URL))
+			//},
+		}
+		req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+		bs, bErr := httputil.DumpRequest(req, DeepDebugInfo)
+		if bErr != nil {
+			err = bErr
+			return
+		}
+		mylog.Info(ctx, gopkg.LogHttp, string(bs))
 	}
 
 	transport := r.Transport // don't change r.Transport
@@ -323,6 +370,20 @@ func (r Client) CallWithJson(ctx context.Context, ret interface{}, method, reqUr
 		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
 	}
 	resp, err := r.DoRequestWithJson(ctx, method, reqUrl, headers, param)
+	if err != nil {
+		return err
+	}
+	return CallRet(ctx, ret, resp)
+}
+
+// CallWithForm Form请求
+func (r Client) CallWithForm(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header,
+	param interface{}) (err error) {
+	if DebugMode {
+		ctx = context.WithValue(ctx, insReqStartTimeKey, time.Now())
+		ctx = context.WithValue(ctx, insReqUrlKey, reqUrl)
+	}
+	resp, err := r.DoRequestWithForm(ctx, method, reqUrl, headers, param)
 	if err != nil {
 		return err
 	}

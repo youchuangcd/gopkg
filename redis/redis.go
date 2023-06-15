@@ -20,20 +20,21 @@ var (
 
 type Pool struct {
 	*redis.Pool
+	config Config
 }
 
 type Config struct {
-	Name           string // 实例名称
-	Host           string
-	Port           int
-	Password       string
-	MaxIdle        int //最大空闲连接数
-	MaxActive      int //最大连接数
-	IdleTimeout    int //空闲连接超时时间 单位：毫秒
-	Database       int // 选择db
-	ConnectTimeout int //连接超时 单位毫秒
-	ReadTimeout    int //读取超时 单位毫秒
-	WriteTimeout   int //写入超时 单位毫秒
+	Name           string `mapstructure:"name" yaml:"name"` // 实例名称
+	Host           string `mapstructure:"host" yaml:"host"`
+	Port           int    `mapstructure:"port" yaml:"port"`
+	Password       string `mapstructure:"password" yaml:"password"`
+	MaxIdle        int    `mapstructure:"maxIdle" yaml:"maxIdle"`               //最大空闲连接数
+	MaxActive      int    `mapstructure:"maxActive" yaml:"maxActive"`           //最大连接数
+	IdleTimeout    int    `mapstructure:"idleTimeout" yaml:"idleTimeout"`       //空闲连接超时时间 单位：纳秒
+	Database       int    `mapstructure:"database" yaml:"database"`             // 选择db
+	ConnectTimeout int    `mapstructure:"connectTimeout" yaml:"connectTimeout"` //连接超时 单位毫秒
+	ReadTimeout    int    `mapstructure:"readTimeout" yaml:"readTimeout"`       //读取超时 单位毫秒
+	WriteTimeout   int    `mapstructure:"writeTimeout" yaml:"writeTimeout"`     //写入超时 单位毫秒
 }
 
 func InitRedis(configs []Config) {
@@ -54,6 +55,7 @@ func InitRedis(configs []Config) {
 			nv := v
 			// 建立连接池
 			redisCollections[v.Name] = &Pool{
+				config: nv,
 				Pool: &redis.Pool{
 					MaxIdle:     v.MaxIdle,                                       //最大空闲连接数
 					MaxActive:   v.MaxActive,                                     //最大连接数
@@ -92,6 +94,24 @@ func getPoolInstance(ctx context.Context) *Pool {
 		return p
 	}
 	panic(fmt.Sprintf("无效的redis实例key: %s", mapKey))
+}
+
+// GetPoolInstance
+//
+//	@Description: 获取一个连接池对象
+//	@param ctx
+//	@return *Pool
+func GetPoolInstance(ctx context.Context) *Pool {
+	return getPoolInstance(ctx)
+}
+
+// GetConfig
+//
+//	@Description: 获取连接池配置
+//	@receiver p
+//	@return Config
+func (p *Pool) GetConfig() Config {
+	return p.config
 }
 
 // SwitchRedisByCtx

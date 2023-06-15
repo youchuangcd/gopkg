@@ -66,13 +66,17 @@ type transport struct {
 
 func newTransport(credentials *auth.Credentials, tr http.RoundTripper) *transport {
 	if tr == nil {
-		tr = http.DefaultTransport
+		tr = gopkg.HttpClientDefaultTransport
 	}
 	return &transport{tr, credentials}
 }
 
 func CallWithJson(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header, param interface{}) (err error) {
 	return DefaultManager().Client.CallWithJson(ctx, ret, method, reqUrl, headers, param)
+}
+
+func CallWithForm(ctx context.Context, ret interface{}, method, reqUrl string, headers http.Header, param interface{}) (err error) {
+	return DefaultManager().Client.CallWithForm(ctx, ret, method, reqUrl, headers, param)
 }
 
 func CallWithJsonReturnResp(ctx context.Context, retBuf *bytes.Buffer, method, reqUrl string, headers http.Header, param interface{}) (err error) {
