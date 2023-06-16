@@ -43,10 +43,11 @@ func (h batchConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession
 	ctx := sess.Context()
 	// 当第一个ConsumeClaim消费完成，会话就会被关闭
 	//ctx := context.WithValue(context.Background(), "logCategory", logConf.Category)
+Loop:
 	for msg := range claim.Messages() {
 		select {
 		case <-sess.Context().Done():
-			break
+			break Loop
 		default:
 		}
 		msgExt := batchConsumerMessageExt{
@@ -182,10 +183,11 @@ func (k Kafka) BatchConsumer(ctx context.Context, batchConf BatchConsumerConfig)
 	handler := batchConsumerGroupHandler{Kafka: k} // 必须传递一个handler
 	//consumerHandler := batchConsumerGroupHandler{Kafka: k}
 	//handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
+Loop:
 	for { // for循环的目的是因为存在重平衡，他会重新启动
 		select {
 		case <-ctx.Done():
-			break
+			break Loop
 		default:
 		}
 		err = client.Consume(ctx, batchConf.Topics, handler) // consume 操作，死循环。exampleConsumerGroupHandler的ConsumeClaim不允许退出，也就是操作到完毕。

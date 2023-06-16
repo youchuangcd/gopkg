@@ -62,10 +62,11 @@ func (k Kafka) BatchConsumerConsistency(ctx context.Context, batchConf BatchCons
 	handler := batchConsumerGroupHandler{Kafka: k} // 必须传递一个handler
 	//consumerHandler := batchConsumerGroupHandler{Kafka: k}
 	//handler := otelsarama.WrapConsumerGroupHandler(&consumerHandler)
+Loop:
 	for { // for循环的目的是因为存在重平衡，他会重新启动
 		select {
 		case <-ctx.Done():
-			break
+			break Loop
 		default:
 		}
 		err = client.Consume(ctx, batchConf.Topics, handler) // consume 操作，死循环。exampleConsumerGroupHandler的ConsumeClaim不允许退出，也就是操作到完毕。
