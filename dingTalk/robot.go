@@ -13,10 +13,16 @@ import (
 type TextMessage struct {
 	Msgtype string             `form:"msgtype" json:"msgtype" `
 	Text    TextMessageContent `form:"text" json:"text" `
+	At      AtMessageContent   `form:"text" json:"at,omitempty"`
 }
 
 type TextMessageContent struct {
 	Content string `form:"content" json:"content" `
+}
+
+type AtMessageContent struct {
+	AtMobiles []string `json:"atMobiles"`
+	IsAtAll   bool     `json:"isAtAll"`
 }
 
 // 钉钉群：数据关联（机器人：数据关联汇总）
