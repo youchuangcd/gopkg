@@ -13,8 +13,7 @@ import (
 	"syscall"
 )
 
-func InitLog(logConf LogConfig) {
-	conf = logConf
+func InitLog() {
 	initLog.Do(func() {
 		tmpLogger := logrus.New()
 		writer := os.Stdout
